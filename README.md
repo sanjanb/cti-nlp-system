@@ -109,7 +109,6 @@ cti-nlp-predictive-system/
 * [MITRE ATT\&CK Framework](https://attack.mitre.org/)
 * [AIS Concept in Cybersecurity](https://en.wikipedia.org/wiki/Artificial_immune_system)
 
----
 
 ## Contact
 
@@ -121,9 +120,3 @@ Feel free to reach out for collaborations or suggestions:
 ---
 
 > “Cybersecurity is not just a technology problem—it’s a people and process challenge.”
-
-
----
-
-Would you like a **cover image banner** for your GitHub project as well? I can generate one for you based on your theme!
-```
