@@ -1,122 +1,148 @@
 # AI-Based Predictive Cyber Threat Intelligence System Using NLP
 
-An intelligent, self-learning cyber threat intelligence (CTI) system that leverages **Natural Language Processing (NLP)** and **Artificial Immune System (AIS)** techniques to autonomously extract, analyze, classify, and predict the severity of cyber threats in real-time.
-
-## Project Members
-
-- **Kushal S M** – 4AD22CI024  
-- **Sanjan B M** – 4AD22CI046  
-- **Ponnanna K V** – 4AD22CI037  
-- **Vishnu S** – 4AD23CI409  
-- **Guided by:** Prof. Khateeja Ambreen, Assistant Professor, Dept. of CSE-AI & ML, ATMECE Mysuru
+This project is an intelligent Cyber Threat Intelligence (CTI) platform that leverages Natural Language Processing (NLP) and Anomaly Detection techniques to analyze unstructured threat data, extract meaningful indicators, classify threat types, predict severity levels, and present the insights through a web-based interface.
 
 ---
 
-## Project Overview
+## Table of Contents
 
-With cyber threats becoming more dynamic, sophisticated, and harder to detect, traditional rule-based systems fail to keep up. This project aims to build a proactive CTI system that automates the process of:
-
-- Extracting **Indicators of Compromise (IOCs)** from unstructured cybersecurity text
-- Classifying the type of threat (e.g., phishing, malware, APTs)
-- Predicting the **severity** of threats using AI models
-- Visualizing the results through a user-friendly dashboard
-
----
-
-## Key Features
-
-- ✅ Automated extraction of threat entities using **NER**
-- ✅ Categorization using pretrained models like **BERT / ThreatBERT**
-- ✅ **Severity Prediction** (Low, Medium, High, Critical)
-- ✅ **Anomaly Detection** using Artificial Immune System (AIS) concept
-- ✅ Mapping to **MITRE ATT&CK** framework
-- ✅ Interactive **Dashboard** using Node.js & React
+- [Overview](#overview)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
-## System Architecture
+## Overview
 
-```text
-[Raw Threat Data Sources]
-            ↓
-[NLP Preprocessing + Named Entity Recognition]
-            ↓
-[Threat Classification + Severity Prediction]
-            ↓
-[Knowledge Base + MITRE Mapping]
-            ↓
-[Frontend Dashboard (Node.js + React)]
-````
+In an era of rapidly evolving cyber threats, traditional rule-based systems fall short in delivering real-time intelligence. This project aims to build a predictive CTI system that automates threat analysis using NLP techniques and AI-based classification models. It extracts threat entities (e.g., malware names, CVEs, IP addresses), categorizes threat types (e.g., phishing, ransomware), predicts severity, and presents the results on an accessible dashboard.
 
 ---
 
-## Tech Stack
+## Features
 
-| Layer        | Technologies                                              |
-| ------------ | --------------------------------------------------------- |
-| **NLP**      | Python, spaCy, HuggingFace Transformers, BERT, ThreatBERT |
-| **ML**       | PyTorch, Scikit-learn, XGBoost                            |
-| **Backend**  | Node.js, Express.js / Flask                               |
-| **Frontend** | React.js, TailwindCSS, Chart.js                           |
-| **Storage**  | SQLite / JSON / MongoDB (optional)                        |
-
----
-
-## Installation & Setup
-
-```bash
-# Clone the repo
-git clone https://github.com/your-username/cti-nlp-predictive-system.git
-cd cti-nlp-predictive-system
-
-# Backend setup (if using Python Flask)
-cd backend
-pip install -r requirements.txt
-python app.py
-
-# Frontend setup
-cd ../dashboard
-npm install
-npm start
-```
+- Extraction of Indicators of Compromise (IOCs) using Named Entity Recognition (NER)
+- Classification of threats into categories such as Phishing, Malware, and APTs
+- Severity prediction using NLP keyword indicators and behavioral anomaly detection
+- Dashboard visualization using Flask with basic filtering and search
+- Modular architecture and Docker-based deployment for ease of setup
 
 ---
 
 ## Project Structure
 
 ```
-cti-nlp-predictive-system/
-├── backend/               # NLP/ML API code (Python/Flask or Express.js)
-├── ml_model/              # Training scripts, models, preprocessing
-├── dashboard/             # React frontend for visualization
-├── data/                  # Sample threat text files
-└── README.md              # Project documentation
+
+cti-nlp-system/
+├── backend/             # Flask backend + NLP/ML pipeline
+├── dashboard/           # Frontend templates (HTML + Jinja)
+├── data/                # Raw and processed datasets
+├── models/              # Saved models and vectorizers
+├── scripts/             # Data scraping, preprocessing, training
+├── utils/               # Reusable utilities
+├── Dockerfile           # Docker build script
+├── docker-compose.yml   # (Optional) Service orchestration
+├── requirements.txt     # Python dependencies
+├── README.md            # Project documentation
+└── CONTRIBUTING.md      # Contribution guidelines
+
+````
+
+---
+
+## Technology Stack
+
+| Category      | Technologies                              |
+|---------------|--------------------------------------------|
+| Language      | Python 3.10+                               |
+| NLP Models    | spaCy, BERT, ThreatBERT (via HuggingFace) |
+| ML Libraries  | Scikit-learn, XGBoost, PyTorch             |
+| Web Framework | Flask                                      |
+| Frontend      | HTML, Bootstrap, Jinja                     |
+| Deployment    | Docker                                     |
+| Storage       | CSV, JSON                                  |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10 or later
+- `pip` (Python package manager)
+- Docker (optional, for containerized deployment)
+
+### Clone the Repository
+
+```bash
+git clone https://github.com/your-username/cti-nlp-system.git
+cd cti-nlp-system
+````
+
+### Set Up Environment
+
+```bash
+python -m venv env
+source env/bin/activate        # On Linux/Mac
+# OR
+env\Scripts\activate           # On Windows
+
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
 ```
 
 ---
 
-## Screenshots (Coming Soon)
+## Usage
 
-* Threat Classification Dashboard
-* Severity Prediction Results
-* IOC Entity Extraction
+1. Add raw `.txt` threat intelligence files to `data/raw/`.
+2. Run preprocessing to generate cleaned data:
 
----
+```bash
+python scripts/preprocess.py
+```
 
-## References
+3. Start the Flask API server:
 
-* [BERT - Transformers by Hugging Face](https://huggingface.co/transformers/)
-* [MITRE ATT\&CK Framework](https://attack.mitre.org/)
-* [AIS Concept in Cybersecurity](https://en.wikipedia.org/wiki/Artificial_immune_system)
+```bash
+python backend/app.py
+```
 
-
-## Contact
-
-Feel free to reach out for collaborations or suggestions:
-
-**Email:** `sanjanacharaya1234@gmail.com`
-**LinkedIn:** [LinkedIn](https://www.linkedin.com/in/sanjan-bm/)
+4. Access the dashboard at `http://localhost:5000`.
 
 ---
 
-> “Cybersecurity is not just a technology problem—it’s a people and process challenge.”
+## Contributing
+
+Please refer to the [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup instructions, branch workflow, code style, and contribution practices.
+
+* Follow the naming conventions.
+* Keep code modular and test before committing.
+* Use pull requests for code review.
+
+---
+
+## License
+
+This project is for academic and research purposes. Licensing terms may apply if used in a production setting.
+
+---
+
+## Maintainers
+
+This project is developed by students from the Department of CSE (AI & ML), ATMECE Mysuru.
+
+* Kushal S M
+* Sanjan B M
+* Ponnanna K V
+* Vishnu S
+* Guided by Prof. Khateeja Ambreen
+
+---
+
+For questions or issues, please open a GitHub issue or contact the maintainers.
+
