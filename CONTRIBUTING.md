@@ -2,7 +2,7 @@
 
 This document outlines the standards and steps to follow when contributing to the **AI-Based Predictive Cyber Threat Intelligence System**. Please review the instructions carefully to maintain consistency and ensure smooth collaboration.
 
----
+
 
 ## Project Structure
 
@@ -22,7 +22,7 @@ cti-nlp-system/
 
 ````
 
----
+
 
 ## Getting Started
 
@@ -126,7 +126,7 @@ pip freeze > requirements.txt
 * Add docstrings and inline comments where necessary.
 * Avoid hardcoding paths; use `Path()` or `os` modules.
 
----
+
 
 ## Suggestions for Contribution
 
@@ -137,7 +137,7 @@ pip freeze > requirements.txt
 * Design clean and responsive HTML templates.
 * Add threat intelligence samples to `data/raw/`.
 
----
+
 
 ## Support
 
@@ -148,4 +148,3 @@ For any questions or issues:
 
 Thank you for your contribution and collaboration.
 
-````
