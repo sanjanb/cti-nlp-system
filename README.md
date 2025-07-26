@@ -15,13 +15,13 @@ This project is an intelligent Cyber Threat Intelligence (CTI) platform that lev
 - [Contributing](#contributing)
 - [License](#license)
 
----
+
 
 ## Overview
 
 In an era of rapidly evolving cyber threats, traditional rule-based systems fall short in delivering real-time intelligence. This project aims to build a predictive CTI system that automates threat analysis using NLP techniques and AI-based classification models. It extracts threat entities (e.g., malware names, CVEs, IP addresses), categorizes threat types (e.g., phishing, ransomware), predicts severity, and presents the results on an accessible dashboard.
 
----
+
 
 ## Features
 
@@ -31,7 +31,7 @@ In an era of rapidly evolving cyber threats, traditional rule-based systems fall
 - Dashboard visualization using Flask with basic filtering and search
 - Modular architecture and Docker-based deployment for ease of setup
 
----
+
 
 ## Project Structure
 
@@ -66,7 +66,7 @@ cti-nlp-system/
 | Deployment    | Docker                                     |
 | Storage       | CSV, JSON                                  |
 
----
+
 
 ## Getting Started
 
@@ -95,7 +95,7 @@ pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
----
+
 
 ## Usage
 
