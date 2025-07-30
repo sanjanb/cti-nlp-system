@@ -44,7 +44,7 @@ def main():
 
     df = pd.DataFrame(all_data)
     df.to_csv(PROCESSED_DATA_DIR / "preprocessed_data.csv", index=False)
-    print(f"✅ Processed {len(all_data)} files → saved to preprocessed_data.csv")
+    print(f"Processed {len(all_data)} files → saved to preprocessed_data.csv")
 
 if __name__ == "__main__":
     main()
