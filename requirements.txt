@@ -1,4 +1,7 @@
-pandas
-spacy
 flask
 flask-cors
+transformers
+scikit-learn
+spacy
+joblib
+pandas

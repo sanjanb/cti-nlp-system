@@ -1,33 +1,37 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from backend.threat_ner import extract_threat_entities
+from backend.classifier import classify_threat
+from backend.severity_predictor import predict_severity
 
 app = Flask(__name__)
-CORS(app)  # Enables cross-origin requests if needed
+CORS(app)
 
 @app.route("/")
 def index():
-    return "CTI-NLP System is Running"
+    return "CTI-NLP backend running."
 
 @app.route("/analyze", methods=["POST"])
-def analyze_threat():
+def analyze():
     data = request.get_json()
-    input_text = data.get("text", "")
+    text = data.get("text", "")
 
-    if not input_text:
-        return jsonify({"error": "No text provided"}), 400
+    if not text:
+        return jsonify({"error": "No input text provided."}), 400
 
-    # Dummy response (replace with model logic later)
-    result = {
-        "original_text": input_text,
-        "entities": [
-            {"type": "IP", "value": "192.168.1.1"},
-            {"type": "CVE", "value": "CVE-2024-1234"},
-        ],
-        "threat_type": "Malware",
-        "severity": "High"
-    }
+    try:
+        entities = extract_threat_entities(text)
+        threat_type = classify_threat(text)
+        severity = predict_severity(text)
 
-    return jsonify(result), 200
+        return jsonify({
+            "original_text": text,
+            "entities": entities,
+            "threat_type": threat_type,
+            "severity": severity
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
