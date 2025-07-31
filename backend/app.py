@@ -3,9 +3,16 @@ from flask_cors import CORS
 from backend.threat_ner import extract_threat_entities
 from backend.classifier import classify_threat
 from backend.severity_predictor import predict_severity
+from flask import Flask, request, jsonify, render_template
+import os
 
-app = Flask(__name__)
+# Tell Flask where to find the frontend templates
+app = Flask(__name__, template_folder="../dashboard/templates")
 CORS(app)
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("index.html")
 
 @app.route("/")
 def index():
