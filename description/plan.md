@@ -37,7 +37,7 @@ Sources:
 - [GitHub IOC repositories](https://github.com/search?q=threat+intel+feeds)
 - Public Twitter + Reddit feeds (for scraping later)
 
-⏳ **Your action**: Choose one, download it into the `data/` folder, and commit.
+  **Your action**: Choose one, download it into the `data/` folder, and commit.
 
 ---
 
@@ -161,7 +161,7 @@ docker run -p 5000:5000 cti-nlp
 
 ---
 
-## 🔁 Weekly Checklist
+## Weekly Checklist
 
 | Task                       | Status |
 | -------------------------- | ------ |
@@ -176,7 +176,7 @@ docker run -p 5000:5000 cti-nlp
 
 ---
 
-## 📦 Suggested Initial Commits
+## Suggested Initial Commits
 
 ```bash
 git add .
@@ -188,7 +188,5 @@ git push origin main
 
 Would you like me to:
 
-- 📁 Create the starter files for `preprocess.py`, `app.py`, and `index.html` now?
-- 📦 Build the full Dockerfile with `requirements.txt`?
-
-Just say “start with code” and I’ll begin building those now ✅
+- Create the starter files for `preprocess.py`, `app.py`, and `index.html` now?
+- Build the full Dockerfile with `requirements.txt`?
