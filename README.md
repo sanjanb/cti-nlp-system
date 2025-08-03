@@ -1,4 +1,4 @@
-[header](assets/header.png)
+![header](assets/header.png)
 
 # AI-Based Predictive Cyber Threat Intelligence System Using NLP
 
