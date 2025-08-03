@@ -1,8 +1,9 @@
 import joblib
 import os
 
-vectorizer_path = os.path.join("..", "models", "tfidf_vectorizer.pkl")
-classifier_path = os.path.join("..", "models", "threat_classifier.pkl")
+vectorizer_path = os.path.join("models", "tfidf_vectorizer.pkl")
+classifier_path = os.path.join("models", "threat_classifier.pkl")
+    
 
 
 tfidf_vectorizer = joblib.load(vectorizer_path)
