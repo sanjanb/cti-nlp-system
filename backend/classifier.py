@@ -6,7 +6,10 @@ classifier_path = os.path.join("..", "models", "threat_classifier.pkl")
 
 
 tfidf_vectorizer = joblib.load(vectorizer_path)
-classifier_model = joblib.load(model_path)
+classifier_model = joblib.load(classifier_path)
+
+print("[INFO] TF-IDF Vectorizer and Classifier loaded successfully.")
+
 
 def classify_threat(text):
     try:
