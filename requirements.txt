@@ -5,3 +5,6 @@ scikit-learn
 spacy
 joblib
 pandas
+torch
+transformers
+huggingface-hub
