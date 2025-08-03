@@ -14,124 +14,119 @@
         background-color: #0d1117;
         color: #c9d1d9;
         font-family: "Courier New", Courier, monospace;
-        padding: 3rem 1rem;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: auto;
+        padding: 2rem 1rem;
       }
 
       h1 {
         color: #58a6ff;
-        font-size: 2.4rem;
+        font-size: 2.2rem;
         text-align: center;
         margin-bottom: 2rem;
-        border-bottom: 2px solid #30363d;
-        padding-bottom: 0.5rem;
       }
 
-      textarea {
+      .card {
         background-color: #161b22;
-        color: #c9d1d9;
         border: 1px solid #30363d;
-      }
-
-      textarea:focus {
-        border-color: #58a6ff;
-        box-shadow: 0 0 5px #58a6ff88;
+        margin-top: 1.5rem;
       }
 
       .btn-primary {
         background-color: #238636;
-        border-color: #238636;
+        border: none;
       }
 
       .btn-primary:hover {
         background-color: #2ea043;
       }
 
-      .result-box {
-        background-color: #161b22;
-        border: 1px solid #30363d;
-        padding: 1.5rem;
-        margin-top: 2rem;
-        border-radius: 10px;
-      }
-
       .badge {
         background-color: #58a6ff;
         color: #0d1117;
         margin: 4px;
-        font-size: 0.95rem;
       }
 
-      .label {
-        font-weight: bold;
-        color: #8b949e;
+      .spinner-border {
+        display: none;
+      }
+
+      .loading .spinner-border {
+        display: inline-block;
       }
 
       #footer {
-        margin-top: 4rem;
         text-align: center;
-        font-size: 0.85rem;
-        color: #555;
-      }
-
-      .highlight {
-        color: #39d353;
-        font-weight: bold;
+        margin-top: 3rem;
+        font-size: 0.9rem;
+        color: #444;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>CTI-NLP Intelligence Dashboard</h1>
+      <h1>🔍 CTI-NLP Threat Analyzer</h1>
 
       <form id="analyze-form">
-        <label for="inputText" class="form-label label"
-          >Enter Threat Intelligence Report:</label
-        >
-        <textarea
-          class="form-control mb-3"
-          id="inputText"
-          rows="5"
-          placeholder="e.g. Emotet is targeting Microsoft Outlook users with phishing emails..."
-        ></textarea>
-        <button type="submit" class="btn btn-primary">Run Analysis</button>
+        <div class="mb-3">
+          <label for="inputText" class="form-label"
+            >Paste Threat Intel Report:</label
+          >
+          <textarea
+            class="form-control"
+            id="inputText"
+            rows="5"
+            placeholder="E.g., Emotet is spreading via phishing campaigns targeting Microsoft..."
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Analyze</button>
+        <div
+          class="spinner-border text-light ms-3"
+          role="status"
+          id="loadingSpinner"
+        ></div>
       </form>
 
-      <div id="result-container" class="result-box d-none">
-        <h4 class="mb-3">Analysis Result</h4>
-        <p>
-          <span class="label">Threat Type:</span>
-          <span id="threat-type" class="highlight"></span>
-        </p>
-        <p>
-          <span class="label">Severity:</span>
-          <span id="severity" class="highlight"></span>
-        </p>
-        <p><span class="label">Extracted Entities:</span></p>
-        <div id="entities"></div>
+      <div id="result-container" class="d-none">
+        <div class="card p-3">
+          <h5>📋 Threat Type</h5>
+          <p id="threat-type" class="fs-5 text-success"></p>
+
+          <h5>🔥 Severity</h5>
+          <p id="severity" class="fs-5 text-warning"></p>
+
+          <h5>📌 Extracted Entities</h5>
+          <div id="entities"></div>
+
+          <button id="downloadBtn" class="btn btn-outline-light mt-3">
+            Download JSON
+          </button>
+        </div>
       </div>
 
-      <div id="footer">© 2025 CTI-NLP Project • Built with and Python</div>
+      <div id="footer">© 2025 CTI-NLP • ATME AI/ML</div>
     </div>
 
     <script>
-      document
-        .getElementById("analyze-form")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const text = document.getElementById("inputText").value;
+      const form = document.getElementById("analyze-form");
+      const spinner = document.getElementById("loadingSpinner");
+      const resultContainer = document.getElementById("result-container");
 
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const inputText = document.getElementById("inputText").value;
+        if (!inputText.trim()) return;
+
+        spinner.style.display = "inline-block";
+        resultContainer.classList.add("d-none");
+
+        try {
           const response = await fetch("/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text: inputText }),
           });
 
           const result = await response.json();
+          spinner.style.display = "none";
 
           if (result.error) {
             alert("Error: " + result.error);
@@ -144,18 +139,31 @@
 
           const entitiesDiv = document.getElementById("entities");
           entitiesDiv.innerHTML = "";
-
           result.entities.forEach((entity) => {
             const badge = document.createElement("span");
             badge.className = "badge";
-            badge.innerText = `${entity.word} (${entity.entity_group})`;
+            badge.textContent = `${entity.word} (${entity.entity_group})`;
             entitiesDiv.appendChild(badge);
           });
 
-          document
-            .getElementById("result-container")
-            .classList.remove("d-none");
-        });
+          // Store result for download
+          window.latestCTIResult = result;
+          resultContainer.classList.remove("d-none");
+        } catch (err) {
+          spinner.style.display = "none";
+          alert("Request failed: " + err.message);
+        }
+      });
+
+      document.getElementById("downloadBtn").addEventListener("click", () => {
+        const dataStr = JSON.stringify(window.latestCTIResult, null, 2);
+        const blob = new Blob([dataStr], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "cti_analysis_result.json";
+        a.click();
+      });
     </script>
   </body>
 </html>
