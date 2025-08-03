@@ -14,7 +14,7 @@ print("Available columns:", df.columns)
 
 # Rename columns as needed
 df = df.rename(columns=lambda x: x.strip())  # Remove accidental spaces
-text_col = "Cleaned Description"
+text_col = "Cleaned Threat Description"
 label_col = "Threat Category"
 
 # Drop rows with missing values
