@@ -2,45 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cyber Threat Analyzer</title>
+    <title>CTI-NLP Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <style>
+      body {
+        padding: 2rem;
+        background-color: #f4f7fa;
+      }
+      .result-box {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 2rem;
+      }
+      .entity-badge {
+        margin: 0.25rem;
+      }
+    </style>
   </head>
-  <body class="bg-light">
-    <div class="container py-5">
-      <h2 class="mb-4 text-center">AI-Powered Cyber Threat Analyzer</h2>
+  <body>
+    <div class="container">
+      <h1 class="text-center mb-4">Cyber Threat Intelligence (CTI-NLP)</h1>
 
       <form id="analyze-form">
         <div class="mb-3">
-          <label for="threatText" class="form-label"
-            >Paste Cyber Threat Text</label
+          <label for="inputText" class="form-label"
+            >Enter Threat Description:</label
           >
           <textarea
             class="form-control"
-            id="threatText"
-            rows="6"
-            placeholder="Enter threat report here..."
-            required
+            id="inputText"
+            rows="5"
+            placeholder="e.g., Emotet is targeting Microsoft users with phishing emails."
           ></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Analyze</button>
       </form>
 
-      <div id="results" class="mt-5" style="display: none">
-        <h4>Analysis Result</h4>
+      <div id="result-container" class="result-box d-none">
+        <h4>🔎 Analysis Result:</h4>
         <p>
           <strong>Threat Type:</strong>
-          <span id="threatType" class="text-danger"></span>
+          <span id="threat-type" class="text-info"></span>
         </p>
         <p>
           <strong>Severity:</strong>
-          <span id="severity" class="text-warning"></span>
+          <span id="severity" class="text-danger"></span>
         </p>
-        <p><strong>Entities Detected:</strong></p>
-        <ul id="entityList" class="list-group"></ul>
+        <p><strong>Entities:</strong></p>
+        <div id="entities"></div>
       </div>
     </div>
 
@@ -49,34 +64,38 @@
         .getElementById("analyze-form")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
-          const inputText = document.getElementById("threatText").value;
+          const text = document.getElementById("inputText").value;
 
-          const res = await fetch("/analyze", {
+          const response = await fetch("/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: inputText }),
+            body: JSON.stringify({ text }),
           });
 
-          const data = await res.json();
+          const result = await response.json();
 
-          if (data.error) {
-            alert("Error: " + data.error);
+          if (result.error) {
+            alert("Error: " + result.error);
             return;
           }
 
-          document.getElementById("threatType").textContent = data.threat_type;
-          document.getElementById("severity").textContent = data.severity;
+          document.getElementById("threat-type").textContent =
+            result.threat_type;
+          document.getElementById("severity").textContent = result.severity;
 
-          const entityList = document.getElementById("entityList");
-          entityList.innerHTML = "";
-          data.entities.forEach((ent) => {
-            const li = document.createElement("li");
-            li.classList.add("list-group-item");
-            li.textContent = `${ent.type}: ${ent.value}`;
-            entityList.appendChild(li);
+          const entitiesDiv = document.getElementById("entities");
+          entitiesDiv.innerHTML = "";
+
+          result.entities.forEach((entity) => {
+            const badge = document.createElement("span");
+            badge.className = "badge bg-secondary entity-badge";
+            badge.innerText = `${entity.word} (${entity.entity_group})`;
+            entitiesDiv.appendChild(badge);
           });
 
-          document.getElementById("results").style.display = "block";
+          document
+            .getElementById("result-container")
+            .classList.remove("d-none");
         });
     </script>
   </body>
