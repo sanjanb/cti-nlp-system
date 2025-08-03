@@ -1,12 +1,17 @@
+import joblib
+import os
+
+# Load vectorizer and model
+vectorizer_path = os.path.join("models", "tfidf_vectorizer.pkl")
+model_path = os.path.join("models", "threat_classifier.pkl")
+
+tfidf_vectorizer = joblib.load(vectorizer_path)
+classifier_model = joblib.load(model_path)
+
 def classify_threat(text):
-    # MOCK function - replace later with real model
-    keywords = {
-        "phishing": "Phishing",
-        "malware": "Malware",
-        "ransomware": "Ransomware",
-        "ddos": "DDoS"
-    }
-    for keyword, label in keywords.items():
-        if keyword in text.lower():
-            return label
-    return "General Threat"
+    try:
+        X = tfidf_vectorizer.transform([text])
+        prediction = classifier_model.predict(X)[0]
+        return prediction
+    except Exception as e:
+        return f"Classification Error: {str(e)}"
