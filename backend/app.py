@@ -9,7 +9,6 @@ from threat_ner import extract_threat_entities
 from classifier import classify_threat
 from severity_predictor import predict_severity
 
-
 app = Flask(__name__, template_folder="../dashboard/templates")
 CORS(app)
 
@@ -37,9 +36,10 @@ def analyze():
         return jsonify({
             "original_text": text,
             "entities": entities,
-            "threat_type": threat_type,
-            "severity": severity
+            "threat_type": str(threat_type),
+            "severity": str(severity)  # Ensure it's serializable
         })
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -59,19 +59,21 @@ def upload_csv():
 
         results = []
 
-        for i, row in df.iterrows():
+        for _, row in df.iterrows():
             text = row["text"]
-            if not isinstance(text, str): continue
+            if not isinstance(text, str):
+                continue
 
             entities = extract_threat_entities(text)
             threat_type = classify_threat(text)
             severity = predict_severity(text)
 
+            # ✅ Convert non-serializable values to native types
             results.append({
                 "original_text": text,
                 "entities": entities,
-                "threat_type": threat_type,
-                "severity": severity
+                "threat_type": str(threat_type),
+                "severity": str(severity)
             })
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8") as f:
