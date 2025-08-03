@@ -1,4 +1,11 @@
-## ✅ PHASE 1: Repository Setup
+## STEPS
+
+- NER (Named Entity Recognition)
+- Threat Classification
+- Severity Prediction
+- Model Training & Validation
+
+## PHASE 1: Repository Setup
 
 ### 🔹 1.1 Create Folder Structure in the Repo
 
@@ -19,16 +26,16 @@ cti-nlp-system/
 
 ---
 
-## ✅ PHASE 2: Dataset Collection & Preprocessing
+## PHASE 2: Dataset Collection & Preprocessing
 
 ### 🔹 2.1 Search for Cybersecurity Datasets
 
 Sources:
 
-* [Kaggle: Cybersecurity Threat Intelligence](https://www.kaggle.com/datasets)
-* [AlienVault threat reports](https://otx.alienvault.com/)
-* [GitHub IOC repositories](https://github.com/search?q=threat+intel+feeds)
-* Public Twitter + Reddit feeds (for scraping later)
+- [Kaggle: Cybersecurity Threat Intelligence](https://www.kaggle.com/datasets)
+- [AlienVault threat reports](https://otx.alienvault.com/)
+- [GitHub IOC repositories](https://github.com/search?q=threat+intel+feeds)
+- Public Twitter + Reddit feeds (for scraping later)
 
 ⏳ **Your action**: Choose one, download it into the `data/` folder, and commit.
 
@@ -40,23 +47,23 @@ Sources:
 
 Responsibilities:
 
-* Read `.txt` / `.json` data
-* Tokenize, clean text
-* Lemmatize
-* Store as processed `.csv` or `.json`
+- Read `.txt` / `.json` data
+- Tokenize, clean text
+- Lemmatize
+- Store as processed `.csv` or `.json`
 
 > I'll generate this file for you once dataset is added.
 
 ---
 
-## ✅ PHASE 3: NLP + ML Pipeline
+## PHASE 3: NLP + ML Pipeline
 
 ### 🔹 3.1 Named Entity Recognition (NER)
 
 **File**: `backend/threat_ner.py`
 
-* Use `spaCy` + `transformers` to extract IOCs
-* Entities: CVEs, IPs, URLs, malware names
+- Use `spaCy` + `transformers` to extract IOCs
+- Entities: CVEs, IPs, URLs, malware names
 
 ```python
 from transformers import pipeline
@@ -69,17 +76,17 @@ ner = pipeline("ner", model="dslim/bert-base-NER")
 
 **File**: `backend/classifier.py`
 
-* Classify threat type: Phishing, Malware, etc.
-* Predict severity using:
+- Classify threat type: Phishing, Malware, etc.
+- Predict severity using:
 
-  * NLP: keyword severity markers
-  * AIS-style anomaly detector (simulate logs)
+  - NLP: keyword severity markers
+  - AIS-style anomaly detector (simulate logs)
 
 Use `scikit-learn`, `transformers`, or `PyTorch`.
 
 ---
 
-## ✅ PHASE 4: Backend (API)
+## PHASE 4: Backend (API)
 
 ### 🔹 4.1 Flask API Setup
 
@@ -95,26 +102,26 @@ def analyze_threat():
 
 ---
 
-## ✅ PHASE 5: Frontend Dashboard
+## PHASE 5: Frontend Dashboard
 
 ### 🔹 5.1 Flask + HTML Setup
 
 **Files**:
 
-* `dashboard/templates/index.html`
-* `dashboard/static/` (for CSS)
+- `dashboard/templates/index.html`
+- `dashboard/static/` (for CSS)
 
 Features:
 
-* Input box (for new threat text)
-* Results section (entities, classification, severity)
-* Table or card UI to show history
+- Input box (for new threat text)
+- Results section (entities, classification, severity)
+- Table or card UI to show history
 
 > You don’t need React here. Just HTML+Jinja for simplicity.
 
 ---
 
-## ✅ PHASE 6: Dockerize Everything
+## PHASE 6: Dockerize Everything
 
 ### 🔹 6.1 Docker Setup
 
@@ -135,7 +142,7 @@ CMD ["python", "backend/app.py"]
 
 ---
 
-## ✅ PHASE 7: Testing & Deployment
+## PHASE 7: Testing & Deployment
 
 ### 🔹 7.1 Test Locally
 
@@ -158,14 +165,14 @@ docker run -p 5000:5000 cti-nlp
 
 | Task                       | Status |
 | -------------------------- | ------ |
-| Create folder structure    | ✅      |
-| Find/download dataset      | ⏳      |
-| Preprocessing script       | ⏳      |
-| NER + classifier code      | ⏳      |
-| Flask API setup            | ⏳      |
-| Basic frontend UI          | ⏳      |
-| Docker container setup     | ⏳      |
-| Test + document everything | ⏳      |
+| Create folder structure    | ✅     |
+| Find/download dataset      | ⏳     |
+| Preprocessing script       | ⏳     |
+| NER + classifier code      | ⏳     |
+| Flask API setup            | ⏳     |
+| Basic frontend UI          | ⏳     |
+| Docker container setup     | ⏳     |
+| Test + document everything | ⏳     |
 
 ---
 
@@ -181,7 +188,7 @@ git push origin main
 
 Would you like me to:
 
-* 📁 Create the starter files for `preprocess.py`, `app.py`, and `index.html` now?
-* 📦 Build the full Dockerfile with `requirements.txt`?
+- 📁 Create the starter files for `preprocess.py`, `app.py`, and `index.html` now?
+- 📦 Build the full Dockerfile with `requirements.txt`?
 
 Just say “start with code” and I’ll begin building those now ✅
