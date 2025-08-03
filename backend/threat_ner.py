@@ -1,16 +1,12 @@
-from transformers import pipeline
-
-# Load NER pipeline once
-ner_pipeline = pipeline("ner", model="dslim/bert-base-NER", grouped_entities=True)
-
 def extract_threat_entities(text):
-    results = ner_pipeline(text)
-    extracted = []
-
-    for entity in results:
-        extracted.append({
-            "type": entity['entity_group'],
-            "value": entity['word']
-        })
-
-    return extracted
+    # MOCK function - simulate NER output
+    entities = []
+    words = text.split()
+    for word in words:
+        if "http" in word:
+            entities.append({"type": "URL", "value": word})
+        elif "Microsoft" in word or "Linux" in word:
+            entities.append({"type": "OS", "value": word})
+        elif "Qbot" in word or "Emotet" in word:
+            entities.append({"type": "Malware", "value": word})
+    return entities
