@@ -7,7 +7,6 @@ joblib
 pandas
 torch
 huggingface-hub
-transformers
 datasets
 seqeval
 
