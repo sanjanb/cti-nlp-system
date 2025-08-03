@@ -10,54 +10,54 @@
     />
   </head>
   <body class="bg-light">
-    <div class="container mt-5">
-      <h2 class="mb-4">AI-Based Cyber Threat Analyzer</h2>
+    <div class="container py-5">
+      <h2 class="mb-4 text-center">AI-Powered Cyber Threat Analyzer</h2>
 
       <form id="analyze-form">
         <div class="mb-3">
           <label for="threatText" class="form-label"
-            >Paste Threat Report Text</label
+            >Paste Cyber Threat Text</label
           >
           <textarea
             class="form-control"
             id="threatText"
             rows="6"
+            placeholder="Enter threat report here..."
             required
           ></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Analyze</button>
       </form>
 
-      <hr />
-
-      <div id="results" class="mt-4" style="display: none">
-        <h5>
-          Threat Type: <span id="threatType" class="text-danger fw-bold"></span>
-        </h5>
-        <h5>
-          Severity: <span id="severity" class="text-warning fw-bold"></span>
-        </h5>
-        <h6 class="mt-3">Entities:</h6>
-        <ul id="entityList"></ul>
+      <div id="results" class="mt-5" style="display: none">
+        <h4>Analysis Result</h4>
+        <p>
+          <strong>Threat Type:</strong>
+          <span id="threatType" class="text-danger"></span>
+        </p>
+        <p>
+          <strong>Severity:</strong>
+          <span id="severity" class="text-warning"></span>
+        </p>
+        <p><strong>Entities Detected:</strong></p>
+        <ul id="entityList" class="list-group"></ul>
       </div>
     </div>
 
     <script>
       document
         .getElementById("analyze-form")
-        .addEventListener("submit", async (e) => {
+        .addEventListener("submit", async function (e) {
           e.preventDefault();
+          const inputText = document.getElementById("threatText").value;
 
-          const text = document.getElementById("threatText").value.trim();
-          if (!text) return;
-
-          const response = await fetch("/analyze", {
+          const res = await fetch("/analyze", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text }),
+            body: JSON.stringify({ text: inputText }),
           });
 
-          const data = await response.json();
+          const data = await res.json();
 
           if (data.error) {
             alert("Error: " + data.error);
@@ -69,9 +69,10 @@
 
           const entityList = document.getElementById("entityList");
           entityList.innerHTML = "";
-          data.entities.forEach((entity) => {
+          data.entities.forEach((ent) => {
             const li = document.createElement("li");
-            li.textContent = `${entity.type}: ${entity.value}`;
+            li.classList.add("list-group-item");
+            li.textContent = `${ent.type}: ${ent.value}`;
             entityList.appendChild(li);
           });
 
