@@ -63,8 +63,9 @@
   </head>
   <body>
     <div class="container">
-      <h1>CTI-NLP Threat Analyzer</h1>
+      <h1>🔍 CTI-NLP Threat Analyzer</h1>
 
+      <!-- Single Text Input -->
       <form id="analyze-form">
         <div class="mb-3">
           <label for="inputText" class="form-label"
@@ -87,13 +88,13 @@
 
       <div id="result-container" class="d-none">
         <div class="card p-3">
-          <h5>Threat Type</h5>
+          <h5>📋 Threat Type</h5>
           <p id="threat-type" class="fs-5 text-success"></p>
 
-          <h5>Severity</h5>
+          <h5>🔥 Severity</h5>
           <p id="severity" class="fs-5 text-warning"></p>
 
-          <h5>Extracted Entities</h5>
+          <h5>📌 Extracted Entities</h5>
           <div id="entities"></div>
 
           <button id="downloadBtn" class="btn btn-outline-light mt-3">
@@ -101,6 +102,21 @@
           </button>
         </div>
       </div>
+
+      <hr class="my-4" />
+      <!-- File Upload -->
+      <h4>📁 Upload CSV for Batch Threat Analysis</h4>
+      <form id="upload-form">
+        <div class="mb-3">
+          <input type="file" id="csvFile" accept=".csv" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Upload & Analyze</button>
+        <div
+          class="spinner-border text-light ms-3"
+          role="status"
+          id="uploadSpinner"
+        ></div>
+      </form>
 
       <div id="footer">© 2025 CTI-NLP • ATME AI/ML</div>
     </div>
@@ -146,7 +162,6 @@
             entitiesDiv.appendChild(badge);
           });
 
-          // Store result for download
           window.latestCTIResult = result;
           resultContainer.classList.remove("d-none");
         } catch (err) {
@@ -163,6 +178,44 @@
         a.href = url;
         a.download = "cti_analysis_result.json";
         a.click();
+      });
+
+      const uploadForm = document.getElementById("upload-form");
+      const uploadSpinner = document.getElementById("uploadSpinner");
+
+      uploadForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const fileInput = document.getElementById("csvFile");
+        const file = fileInput.files[0];
+        if (!file) return alert("Please upload a CSV file");
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        uploadSpinner.style.display = "inline-block";
+
+        try {
+          const response = await fetch("/upload_csv", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "cti_batch_results.json";
+            a.click();
+          } else {
+            const err = await response.json();
+            alert("Error: " + err.error);
+          }
+        } catch (err) {
+          alert("Failed: " + err.message);
+        }
+
+        uploadSpinner.style.display = "none";
       });
     </script>
   </body>
