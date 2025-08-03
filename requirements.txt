@@ -6,5 +6,8 @@ spacy
 joblib
 pandas
 torch
-transformers
 huggingface-hub
+transformers
+datasets
+seqeval
+
