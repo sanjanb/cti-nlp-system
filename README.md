@@ -120,7 +120,7 @@ Please refer to the [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup instructions,
 
 ## License
 
-This project is for academic and research purposes. Licensing terms may apply if used in a production setting.
+This project is licensed under the [MIT License](./LICENSE).
 
 ---
 
