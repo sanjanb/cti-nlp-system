@@ -73,7 +73,7 @@ cti-nlp-system/
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/cti-nlp-system.git
+git clone https://github.com/sanjanb/cti-nlp-system.git
 cd cti-nlp-system
 ```
 
