@@ -5,9 +5,10 @@ import tempfile
 import json
 import os
 
-from backend.threat_ner import extract_threat_entities
-from backend.classifier import classify_threat
-from backend.severity_predictor import predict_severity
+from threat_ner import extract_threat_entities
+from classifier import classify_threat
+from severity_predictor import predict_severity
+
 
 app = Flask(__name__, template_folder="../dashboard/templates")
 CORS(app)
