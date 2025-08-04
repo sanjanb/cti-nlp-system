@@ -4,7 +4,7 @@ import pandas as pd
 import tempfile
 import json
 import os
-import numpy as np  # Required for sanitizing NumPy types
+import numpy as np
 
 from threat_ner import extract_threat_entities
 from classifier import classify_threat
@@ -13,17 +13,18 @@ from severity_predictor import predict_severity
 app = Flask(__name__, template_folder="../dashboard/templates")
 CORS(app)
 
+# 🔧 Fix: recursive conversion of all NumPy types to native types
 def sanitize_for_json(obj):
-    if isinstance(obj, (np.integer, np.int64, np.int32)):
+    if isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_for_json(v) for v in obj]
+    elif isinstance(obj, (np.integer, np.int32, np.int64)):
         return int(obj)
     elif isinstance(obj, (np.floating, np.float32, np.float64)):
         return float(obj)
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
-    elif isinstance(obj, dict):
-        return {k: sanitize_for_json(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [sanitize_for_json(v) for v in obj]
     else:
         return obj
 
@@ -50,12 +51,12 @@ def analyze():
 
         response = {
             "original_text": text,
-            "entities": sanitize_for_json(entities),
+            "entities": entities,
             "threat_type": str(threat_type),
-            "severity": str(severity)
+            "severity": severity
         }
 
-        return jsonify(response)
+        return jsonify(sanitize_for_json(response))
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -84,15 +85,15 @@ def upload_csv():
             threat_type = classify_threat(text)
             severity = predict_severity(text)
 
-            results.append(sanitize_for_json({
+            results.append({
                 "original_text": text,
                 "entities": entities,
                 "threat_type": threat_type,
                 "severity": severity
-            }))
+            })
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
+            json.dump(sanitize_for_json(results), f, indent=2)
             file_path = f.name
 
         return send_file(file_path, as_attachment=True, download_name="cti_batch_results.json")
