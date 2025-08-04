@@ -1,1 +1,0 @@
-QakBot malware was distributed via phishing emails impersonating Microsoft, urging users to download a document. The payload connects to C2 servers in Russia. APT28 is suspected to be behind the campaign. Detected CVE-2023-23397 exploit.
