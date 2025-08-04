@@ -1,139 +1,197 @@
 ![header](assets/header.png)
 
-# AI-Based Predictive Cyber Threat Intelligence System Using NLP
+#  AI-Powered Cyber Threat Intelligence System using NLP & FastAPI
 
-This project is an intelligent Cyber Threat Intelligence (CTI) platform that leverages Natural Language Processing (NLP) and Anomaly Detection techniques to analyze unstructured threat data, extract meaningful indicators, classify threat types, predict severity levels, and present the insights through a web-based interface.
+A predictive Cyber Threat Intelligence (CTI) system that leverages **Natural Language Processing (NLP)** and **AI-based classification** to extract meaningful cyber threat indicators from unstructured text, categorize threat types, predict severity levels, and visualize insights through an interactive, modular web interface.
 
----
 
-## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Technology Stack](#technology-stack)
-- [Getting Started](#getting-started)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+##  Table of Contents
 
-## Overview
+- [ Overview](#overview)
+- [ Features](#features)
+- [ Project Structure](#project-structure)
+- [ Technology Stack](#technology-stack)
+- [ Getting Started](#getting-started)
+- [ Testing the Application](#testing-the-application)
+- [ Documentation](#documentation)
+- [ Contributing](#contributing)
+- [ License](#license)
+- [ Maintainers](#maintainers)
 
-In an era of rapidly evolving cyber threats, traditional rule-based systems fall short in delivering real-time intelligence. This project aims to build a predictive CTI system that automates threat analysis using NLP techniques and AI-based classification models. It extracts threat entities (e.g., malware names, CVEs, IP addresses), categorizes threat types (e.g., phishing, ransomware), predicts severity, and presents the results on an accessible dashboard.
 
-## Features
 
-- Extraction of Indicators of Compromise (IOCs) using Named Entity Recognition (NER)
-- Classification of threats into categories such as Phishing, Malware, and APTs
-- Severity prediction using NLP keyword indicators and behavioral anomaly detection
-- Dashboard visualization using Flask with basic filtering and search
-- Modular architecture and Docker-based deployment for ease of setup
+##  Overview
 
-## Project Structure
+In today’s cyber threat landscape, real-time intelligence is crucial. This platform uses **NLP-based entity recognition**, **machine learning-based threat classification**, and **severity prediction models** to generate actionable insights from threat reports and forum data.
 
-```
+The system is designed for analysts and SOC teams to **triage, investigate, and act** — all within one command-center styled dashboard.
 
+
+
+##  Features
+
+-  **Named Entity Recognition (NER)** for extracting IOCs (IP addresses, malware names, CVEs, etc.)
+-  **Threat Classification** into categories like Phishing, Malware, APTs, Ransomware
+-  **Severity Level Prediction** using keyword extraction + ML models
+-  **Interactive Frontend Dashboard** with expandable result cards, live analysis, and downloadable reports
+-  Modular design with FastAPI, enabling scalability and API-first development
+-  **Docker-based Deployment** ready for cloud or local setups
+
+
+
+##  Project Structure
+
+```text
 cti-nlp-system/
-├── backend/             # Flask backend + NLP/ML pipeline
-├── dashboard/           # Frontend templates (HTML + Jinja)
-├── data/                # Raw and processed datasets
-├── models/              # Saved models and vectorizers
-├── scripts/             # Data scraping, preprocessing, training
-├── utils/               # Reusable utilities
-├── Dockerfile           # Docker build script
-├── docker-compose.yml   # (Optional) Service orchestration
-├── requirements.txt     # Python dependencies
-├── README.md            # Project documentation
-└── CONTRIBUTING.md      # Contribution guidelines
-
-```
+│
+├── backend/                  # FastAPI backend logic (main.py, NER, ML models)
+│   ├── main.py
+│   ├── threat_ner.py
+│   ├── classifier.py
+│   ├── severity_predictor.py
+│   └── ...
+│
+├── dashboard/                # Frontend templates (HTML + CSS + Jinja2/JS)
+│   ├── templates/
+│   ├── static/
+│   └── ...
+│
+├── data/                     # Raw and processed threat intel datasets
+│   ├── raw/
+│   ├── cleaned/
+│   └── ...
+│
+├── docs/                     # 📘 Documentation and testing guidelines
+│   ├── setup_guide.md
+│   ├── testing_guide.md
+│   └── api_schema.json
+│
+├── models/                   # Saved ML models, vectorizers (joblib/pkl files)
+│
+├── scripts/                  # Preprocessing, training scripts for models
+│   ├── train_threat_classifier.py
+│   ├── preprocess.py
+│   └── ...
+│
+├── utils/                    # Helper utilities (tokenizer, logger, metrics)
+│
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── README.md
+└── CONTRIBUTING.md
+````
 
 ---
 
-## Technology Stack
+##  Technology Stack
 
-| Category      | Technologies                              |
-| ------------- | ----------------------------------------- |
-| Language      | Python 3.10+                              |
-| NLP Models    | spaCy, BERT, ThreatBERT (via HuggingFace) |
-| ML Libraries  | Scikit-learn, XGBoost, PyTorch            |
-| Web Framework | Flask                                     |
-| Frontend      | HTML, Bootstrap, Jinja                    |
-| Deployment    | Docker                                    |
-| Storage       | CSV, JSON                                 |
+| Category     | Tools & Libraries                                   |
+| ------------ | --------------------------------------------------- |
+| Backend      | **FastAPI**, Uvicorn                                |
+| NLP Models   | spaCy, HuggingFace Transformers (BERT, ThreatBERT)  |
+| ML Libraries | Scikit-learn, XGBoost, PyTorch                      |
+| Frontend     | HTML, Bootstrap 5, JavaScript, Jinja2               |
+| Dashboard    | Custom Flask/Static Pages (migrating to React/Vite) |
+| Deployment   | Docker, Render, Railway                             |
+| Storage      | CSV, JSON                                           |
 
-## Getting Started
+---
 
-### Prerequisites
+##  Getting Started
 
-- Python 3.10 or later
-- `pip` (Python package manager)
-- Docker (optional, for containerized deployment)
-
-### Clone the Repository
+###  1. Clone the Repository
 
 ```bash
 git clone https://github.com/sanjanb/cti-nlp-system.git
 cd cti-nlp-system
 ```
 
-### Set Up Environment
+### 2. Set Up Environment
 
 ```bash
-python -m venv env
-source env/bin/activate        # On Linux/Mac
-# OR
-env\Scripts\activate           # On Windows
+python -m venv myenv
+# Windows
+myenv\Scripts\activate
+# Linux/Mac
+source myenv/bin/activate
 
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
 ```
 
-## Usage
-
-1. Add raw `.txt` threat intelligence files to `data/raw/`.
-2. Run preprocessing to generate cleaned data:
+###  3. Start the FastAPI Server
 
 ```bash
-python scripts/preprocess.py
+uvicorn backend.main:app --reload
 ```
 
-3. Start the Flask API server:
-
-```bash
-python backend/app.py
-```
-
-4. Access the dashboard at `http://localhost:5000`.
+Access the API at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-## Contributing
+##  Testing the Application
 
-Please refer to the [`CONTRIBUTING.md`](CONTRIBUTING.md) for setup instructions, branch workflow, code style, and contribution practices.
+Check the [ docs/testing\_guide.md](docs/testing_guide.md) file for full testing procedures.
 
-- Follow the naming conventions.
-- Keep code modular and test before committing.
-- Use pull requests for code review.
+### Example API Usage
+
+```bash
+curl -X POST http://localhost:8000/analyze \
+    -H "Content-Type: application/json" \
+    -d '{"text": "QakBot malware exploited CVE-2023-1234 via phishing in Russia"}'
+```
+
+Expected JSON:
+
+```json
+{
+  "original_text": "...",
+  "entities": [...],
+  "threat_type": "Phishing",
+  "severity": "High"
+}
+```
+
+You can also upload `.csv` files with a `text` column at `/upload_csv`.
 
 ---
+
+##  Documentation
+
+| File                                             | Description                               |
+| ------------------------------------------------ | ----------------------------------------- |
+| [`docs/setup_guide.md`](docs/setup_guide.md)     | End-to-end setup and deployment steps     |
+| [`docs/testing_guide.md`](docs/testing_guide.md) | Manual and automated testing instructions |
+| [`docs/api_schema.json`](docs/api_schema.json)   | Swagger/OpenAPI schema                    |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md)             | Contribution guidelines                   |
+
+---
+
+##  Contributing
+
+We welcome contributions from students, researchers, and cybersecurity enthusiasts.
+
+>  For setup, conventions, and pull request flow, read [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is released under the **MIT License**. See [`LICENSE`](LICENSE) for more details.
 
----
 
 ## Maintainers
 
-This project is developed by students from the Department of CSE (AI & ML), ATMECE Mysuru.
+Developed as part of the final year project (CSE - AI & ML) at **ATME College of Engineering**, Mysuru:
 
-- Kushal S M
-- Sanjan B M
-- Ponnanna K V
-- Vishnu S
-- Guided by Prof. Khateeja Ambreen
+* **Kushal S M**
+* **Sanjan B M**
+* **Ponnanna K V**
+* **Vishnu S**
+* *Guided by Prof. Khateeja Ambreen*
 
----
+For questions or suggestions, open a GitHub issue or reach out on [LinkedIn](https://www.linkedin.com/in/sanjanb/).
 
-For questions or issues, please open a GitHub issue or contact the maintainers.
+Shall we proceed?
+```
