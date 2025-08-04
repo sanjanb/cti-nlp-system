@@ -62,7 +62,7 @@ cti-nlp-system/
 │   ├── cleaned/
 │   └── ...
 │
-├── docs/                     # 📘 Documentation and testing guidelines
+├── docs/                     #  Documentation and testing guidelines
 │   ├── setup_guide.md
 │   ├── testing_guide.md
 │   └── api_schema.json
@@ -83,7 +83,7 @@ cti-nlp-system/
 └── CONTRIBUTING.md
 ````
 
----
+
 
 ##  Technology Stack
 
@@ -97,7 +97,6 @@ cti-nlp-system/
 | Deployment   | Docker, Render, Railway                             |
 | Storage      | CSV, JSON                                           |
 
----
 
 ##  Getting Started
 
@@ -156,7 +155,7 @@ Expected JSON:
 
 You can also upload `.csv` files with a `text` column at `/upload_csv`.
 
----
+
 
 ##  Documentation
 
@@ -167,7 +166,7 @@ You can also upload `.csv` files with a `text` column at `/upload_csv`.
 | [`docs/api_schema.json`](docs/api_schema.json)   | Swagger/OpenAPI schema                    |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md)             | Contribution guidelines                   |
 
----
+
 
 ##  Contributing
 
@@ -192,6 +191,3 @@ Developed as part of the final year project (CSE - AI & ML) at **ATME College of
 * *Guided by Prof. Khateeja Ambreen*
 
 For questions or suggestions, open a GitHub issue or reach out on [LinkedIn](https://www.linkedin.com/in/sanjanb/).
-
-Shall we proceed?
-```
