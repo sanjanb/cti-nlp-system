@@ -4,6 +4,7 @@ import pandas as pd
 import tempfile
 import json
 import os
+import numpy as np  # Required for sanitizing NumPy types
 
 from threat_ner import extract_threat_entities
 from classifier import classify_threat
@@ -11,6 +12,20 @@ from severity_predictor import predict_severity
 
 app = Flask(__name__, template_folder="../dashboard/templates")
 CORS(app)
+
+def sanitize_for_json(obj):
+    if isinstance(obj, (np.integer, np.int64, np.int32)):
+        return int(obj)
+    elif isinstance(obj, (np.floating, np.float32, np.float64)):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_for_json(v) for v in obj]
+    else:
+        return obj
 
 @app.route("/")
 def index():
@@ -33,12 +48,14 @@ def analyze():
         threat_type = classify_threat(text)
         severity = predict_severity(text)
 
-        return jsonify({
+        response = {
             "original_text": text,
-            "entities": entities,
+            "entities": sanitize_for_json(entities),
             "threat_type": str(threat_type),
-            "severity": str(severity)  # Ensure it's serializable
-        })
+            "severity": str(severity)
+        }
+
+        return jsonify(response)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -61,20 +78,18 @@ def upload_csv():
 
         for _, row in df.iterrows():
             text = row["text"]
-            if not isinstance(text, str):
-                continue
+            if not isinstance(text, str): continue
 
             entities = extract_threat_entities(text)
             threat_type = classify_threat(text)
             severity = predict_severity(text)
 
-            # ✅ Convert non-serializable values to native types
-            results.append({
+            results.append(sanitize_for_json({
                 "original_text": text,
                 "entities": entities,
-                "threat_type": str(threat_type),
-                "severity": str(severity)
-            })
+                "threat_type": threat_type,
+                "severity": severity
+            }))
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
