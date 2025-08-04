@@ -1,0 +1,18 @@
+# .gitignore
+__pycache__/
+*.pyc
+.env
+*.pkl
+*.json
+.DS_Store
+venv/
+env/
+myenv/
+.idea/
+.vscode/
+*.log
+node_modules/
+frontend/
+dist/
+*.sqlite3
+*.db
