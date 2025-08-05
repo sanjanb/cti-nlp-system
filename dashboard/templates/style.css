@@ -1,0 +1,17 @@
+body {
+  background-color: #f9fafb;
+}
+
+.card {
+  margin-top: 20px;
+}
+
+#loader {
+  display: none;
+  position: fixed;
+}
+
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
