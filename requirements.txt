@@ -9,4 +9,7 @@ torch
 huggingface-hub
 datasets
 seqeval
+fastapi
+uvicorn
+python-multipart
 
