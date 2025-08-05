@@ -8,6 +8,7 @@ body {
 
 #loader {
   display: none;
+  position: fixed;
 }
 
 pre {
