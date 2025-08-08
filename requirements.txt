@@ -13,3 +13,5 @@ fastapi
 uvicorn
 python-multipart
 xgboost
+deep-translator
+
