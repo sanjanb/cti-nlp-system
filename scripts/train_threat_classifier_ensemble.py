@@ -9,9 +9,15 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.metrics import classification_report, accuracy_score
 
 # ===== Step 1: Load Datasets =====
-train_df = pd.read_csv("data\cyber-threat-intelligence-splited_train.csv")
-val_df = pd.read_csv("data\cyber-threat-intelligence-splited_validate.csv")
-test_df = pd.read_csv("dat\cyber-threat-intelligence-splited_test.csv")
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")  
+
+train_df = pd.read_csv(os.path.join(DATA_DIR, "cyber-threat-intelligence-splited_train.csv"))
+test_df = pd.read_csv(os.path.join(DATA_DIR, "cyber-threat-intelligence-splited_test.csv"))
+val_df = pd.read_csv(os.path.join(DATA_DIR, "cyber-threat-intelligence-splited_validate.csv"))
+
 
 # Combine train + validate
 train_df = pd.concat([train_df, val_df], ignore_index=True)
