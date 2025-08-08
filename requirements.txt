@@ -12,4 +12,4 @@ seqeval
 fastapi
 uvicorn
 python-multipart
-
+xgboost
