@@ -17,5 +17,5 @@ deep-translator
 snscrape
 python-dotenv 
 requests
-
-
+deep-translator
+langdetect
