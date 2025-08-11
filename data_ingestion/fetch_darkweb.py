@@ -1,15 +1,7 @@
-# data_ingestion/fetch_darkweb.py
 def fetch_darkweb():
-    """
-    Placeholder for dark web forum data fetching.
-    In real usage, connect via Tor or API and scrape.
-    Returns: list of dicts with 'source', 'text', 'metadata'
-    """
-    # Example dummy data
-    return [
-        {
-            "source": "darkweb_forum",
-            "text": "Selling RDP access to corporate networks.",
-            "metadata": {"url": "http://exampleonionaddress.onion"}
-        }
+    # Placeholder for actual dark web scraping
+    data = [
+        {"source": "darkweb", "text": "Credential dump found on popular forum."},
+        {"source": "darkweb", "text": "Ransomware group advertising stolen corporate data."}
     ]
+    return data
