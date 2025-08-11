@@ -16,3 +16,4 @@ xgboost
 deep-translator
 snscrape
 
+
