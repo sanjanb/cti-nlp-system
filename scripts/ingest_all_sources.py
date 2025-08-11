@@ -1,4 +1,10 @@
 # scripts/ingest_all_sources.py
+import sys
+import os
+
+# Make sure repo root is in sys.path before imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import json
 from datetime import datetime
 from data_ingestion.fetch_darkweb import fetch_darkweb

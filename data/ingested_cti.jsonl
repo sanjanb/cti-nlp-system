@@ -1,0 +1,3 @@
+{"source": "darkweb_forum", "text": "Selling RDP access to corporate networks.", "metadata": {"url": "http://exampleonionaddress.onion"}, "timestamp": "2025-08-11T16:20:14.645584"}
+{"source": "twitter", "text": "New ransomware variant targeting healthcare sector. #cybersecurity", "metadata": {"user": "@threathunter", "tweet_id": "1234567890"}, "timestamp": "2025-08-11T16:20:14.645645"}
+{"source": "mitre_attack", "text": "T1059: Command and Scripting Interpreter", "metadata": {"technique_id": "T1059", "platform": "Windows, Linux"}, "timestamp": "2025-08-11T16:20:14.645668"}
