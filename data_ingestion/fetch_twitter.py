@@ -1,50 +1,42 @@
-import os
+import time
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
-SEARCH_URL = "https://api.twitter.com/2/tweets/search/recent"
-
-# Keywords to track
-QUERY = "phishing OR ransomware OR zero-day OR exploit lang:en"
-MAX_RESULTS = 10  # adjust as needed
-
-def create_headers():
-    return {"Authorization": f"Bearer {BEARER_TOKEN}"}
 
 def fetch_twitter():
-    """
-    Fetch recent threat chatter tweets from Twitter API v2
-    """
-    if not BEARER_TOKEN:
+    import os
+    bearer_token = os.getenv("TWITTER_BEARER_TOKEN")
+    if not bearer_token:
         print("[ERROR] Missing Twitter Bearer Token in .env")
         return []
 
-    params = {
-        "query": QUERY,
-        "max_results": MAX_RESULTS,
+    url = "https://api.twitter.com/2/tweets/search/recent"
+    query = {
+        "query": "phishing OR ransomware OR zero-day OR exploit lang:en",
+        "max_results": 10,
         "tweet.fields": "created_at,lang"
     }
+    headers = {"Authorization": f"Bearer {bearer_token}"}
 
     try:
-        response = requests.get(SEARCH_URL, headers=create_headers(), params=params)
-        response.raise_for_status()
-        data = response.json()
+        resp = requests.get(url, headers=headers, params=query)
+        if resp.status_code == 429:
+            print("[WARN] Twitter API rate limit hit. Waiting 60 seconds...")
+            time.sleep(60)
+            resp = requests.get(url, headers=headers, params=query)
 
-        results = []
-        for tweet in data.get("data", []):
-            results.append({
+        resp.raise_for_status()
+        data = resp.json()
+        tweets = []
+        for tw in data.get("data", []):
+            tweets.append({
                 "source": "twitter",
-                "text": tweet["text"],
+                "text": tw.get("text", ""),
                 "metadata": {
-                    "id": tweet["id"],
-                    "created_at": tweet["created_at"],
-                    "lang": tweet["lang"]
+                    "id": tw.get("id"),
+                    "created_at": tw.get("created_at"),
+                    "lang": tw.get("lang")
                 }
             })
-        return results
+        return tweets
 
     except requests.exceptions.RequestException as e:
         print(f"[ERROR] Twitter API request failed: {e}")
