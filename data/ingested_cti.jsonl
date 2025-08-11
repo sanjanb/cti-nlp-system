@@ -26,3 +26,7 @@
 {"source": "twitter", "text": "RT @TrustblockHQ: \ud83d\udfe3Trustblock Weekly Security Update The exploits keep coming - and the attack vectors are only getting smarter. Here\u2019s wh\u2026", "metadata": {"id": "1954947930609332362", "created_at": "2025-08-11T16:48:02.000Z", "lang": "en"}, "timestamp": "2025-08-11T16:48:43.459062"}
 {"source": "mitre_attack", "text": "T1059: Command and Scripting Interpreter", "timestamp": "2025-08-11T16:48:43.459066"}
 {"source": "mitre_attack", "text": "T1566: Phishing technique observed", "timestamp": "2025-08-11T16:48:43.459069"}
+{"source": "darkweb", "text": "Credential dump found on popular forum.", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:52:36.182166"}
+{"source": "darkweb", "text": "Ransomware group advertising stolen corporate data.", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:52:36.182194"}
+{"source": "mitre_attack", "text": "T1059: Command and Scripting Interpreter", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:52:36.182204"}
+{"source": "mitre_attack", "text": "T1566: Phishing technique observed", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:52:36.182209"}
