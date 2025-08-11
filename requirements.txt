@@ -15,6 +15,7 @@ python-multipart
 xgboost
 deep-translator
 snscrape
-dotenv
+python-dotenv 
+requests
 
 
