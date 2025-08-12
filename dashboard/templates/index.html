@@ -1,215 +1,606 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CTI-NLP Dashboard SYSTEM</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CTI-NLP Dashboard</title>
+
+    <!-- Bootstrap CSS -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
     <style>
+      :root {
+        --brand: #0d6efd;
+        --muted: #6c757d;
+        --card-bg: #ffffff;
+        --page-bg: #f6f8fb;
+      }
       body {
-        background-color: #f9fafb;
+        background: var(--page-bg);
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto,
+          "Helvetica Neue", Arial;
+      }
+      .app-header {
+        background: linear-gradient(90deg, #0d6efd 0%, #4da8ff 100%);
+        color: #fff;
+        padding: 18px 24px;
+        border-radius: 8px;
+        margin-bottom: 18px;
+      }
+      .app-title {
+        font-weight: 700;
+        margin: 0;
+        font-size: 1.25rem;
+      }
+      .app-sub {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.95;
       }
       .card {
-        margin-top: 20px;
+        border: none;
+        box-shadow: 0 6px 18px rgba(32, 40, 60, 0.06);
       }
-      #loader,
-      #ingestLoader {
-        display: none;
+      .small-muted {
+        color: var(--muted);
+        font-size: 0.9rem;
       }
       pre {
         white-space: pre-wrap;
-        word-wrap: break-word;
+        word-break: break-word;
+        font-size: 0.9rem;
+        background: #f8f9fb;
+        padding: 12px;
+        border-radius: 6px;
+      }
+      .spinner-inline {
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.16rem;
+      }
+      .section-title {
+        font-weight: 600;
+        color: #222;
+      }
+      footer {
+        text-align: center;
+        color: var(--muted);
+        margin-top: 28px;
+        font-size: 0.85rem;
+      }
+      @media (min-width: 992px) {
+        .grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 420px;
+          gap: 20px;
+          align-items: start;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container py-5">
-      <h2 class="text-center mb-4">Cyber Threat Intelligence - NLP Analysis</h2>
-
-      <!-- Threat Analysis Section -->
-      <div class="mb-4">
-        <textarea
-          id="inputText"
-          class="form-control"
-          rows="6"
-          placeholder="Paste threat intelligence report or suspicious text here..."
-        ></textarea>
-      </div>
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-primary" onclick="analyzeText()">
-          Analyze Threat
-        </button>
-      </div>
-
-      <div class="text-center my-3">
-        <div class="spinner-border text-primary" role="status" id="loader">
-          <span class="visually-hidden">Loading...</span>
+    <div class="container py-4">
+      <!-- Header -->
+      <div class="app-header d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="app-title">AI-Based Predictive CTI — Dashboard</h1>
+          <p class="app-sub mb-0">
+            Analyze threat text, run ingestion, upload batches & monitor
+            ingestion status.
+          </p>
         </div>
-      </div>
-
-      <div id="results" class="mt-4" style="display: none">
-        <h4>Analysis Results</h4>
-
-        <div class="card">
-          <div class="card-header">Threat Type</div>
-          <div class="card-body"><p id="threatType"></p></div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">Severity</div>
-          <div class="card-body"><p id="severity"></p></div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">Entities (NER)</div>
-          <div class="card-body"><pre id="entities"></pre></div>
-        </div>
-
-        <div class="d-flex justify-content-end mt-3">
-          <button
-            class="btn btn-outline-secondary me-2"
-            onclick="copyResults()"
-          >
-            Copy
-          </button>
-          <button class="btn btn-outline-success" onclick="downloadResults()">
-            Download
-          </button>
-        </div>
-      </div>
-
-      <hr class="my-5" />
-
-      <!-- Real-time Ingestion Section -->
-      <h4>Real-Time Ingestion</h4>
-      <div class="d-grid gap-2 col-6 mx-auto">
-        <button class="btn btn-warning" onclick="runIngestion()">
-          Run Ingestion Now
-        </button>
-      </div>
-
-      <div class="text-center my-3">
-        <div
-          class="spinner-border text-warning"
-          role="status"
-          id="ingestLoader"
-        >
-          <span class="visually-hidden">Ingesting...</span>
-        </div>
-      </div>
-
-      <div id="ingestResults" class="mt-4" style="display: none">
-        <div class="card">
-          <div class="card-header">Last Ingestion Summary</div>
-          <div class="card-body">
-            <pre id="ingestSummary"></pre>
+        <div class="text-end small-muted">
+          <div>Team: CSE (AI & ML), ATMECE Mysuru</div>
+          <div style="font-size: 0.85rem">
+            Environment: <span id="envLabel">local</span>
           </div>
         </div>
       </div>
+
+      <!-- Top summary -->
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <div class="card p-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="small-muted">Ingestion last run</div>
+                <div id="lastRun" class="fw-semibold">—</div>
+              </div>
+              <div>
+                <button
+                  id="btnRunIngest"
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="runIngestionNow()"
+                >
+                  <span id="btnRunIngestLabel">Run Ingestion Now</span>
+                  <div
+                    id="ingestSpinner"
+                    class="spinner-border spinner-inline text-primary ms-2"
+                    role="status"
+                    style="display: none"
+                  ></div>
+                </button>
+              </div>
+            </div>
+            <hr />
+            <div class="d-flex gap-3">
+              <div>
+                <div class="small-muted">Darkweb</div>
+                <div id="countDark" class="fw-bold">0</div>
+              </div>
+              <div>
+                <div class="small-muted">Twitter</div>
+                <div id="countTwitter" class="fw-bold">0</div>
+              </div>
+              <div>
+                <div class="small-muted">MITRE</div>
+                <div id="countMitre" class="fw-bold">0</div>
+              </div>
+              <div>
+                <div class="small-muted">Appended</div>
+                <div id="countTotal" class="fw-bold">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3">
+            <div class="small-muted">Service health</div>
+            <div class="d-flex align-items-center">
+              <div
+                id="serverStatusDot"
+                style="
+                  width: 12px;
+                  height: 12px;
+                  border-radius: 50%;
+                  background: #28a745;
+                  margin-right: 10px;
+                "
+              ></div>
+              <div>
+                <div id="serverStatusText" class="fw-semibold">Running</div>
+                <div class="small-muted" id="serverStatusDetail">
+                  Uvicorn / FastAPI
+                </div>
+              </div>
+            </div>
+            <hr />
+            <div class="small-muted">Model status</div>
+            <div id="modelStatus" class="fw-semibold">Loading models...</div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card p-3">
+            <div class="small-muted">Quick actions</div>
+            <div class="mt-2 d-flex flex-column gap-2">
+              <button
+                class="btn btn-success btn-sm"
+                onclick="document.getElementById('analyzeTextArea').scrollIntoView({behavior:'smooth'})"
+              >
+                Analyze a text
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                onclick="document.getElementById('csvFile').scrollIntoView({behavior:'smooth'})"
+              >
+                Upload CSV
+              </button>
+              <button
+                class="btn btn-outline-info btn-sm"
+                onclick="refreshStatus()"
+              >
+                Refresh status
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two-column layout: Main analysis + Right utilities -->
+      <div class="grid-2">
+        <!-- Left: Analysis & Batch -->
+        <div>
+          <!-- Analyze single text -->
+          <div class="card p-3 mb-3">
+            <div class="section-title mb-2">Analyze text</div>
+            <textarea
+              id="analyzeTextArea"
+              class="form-control mb-2"
+              rows="6"
+              placeholder="Paste threat intelligence report or suspicious text here..."
+            ></textarea>
+
+            <div class="d-flex gap-2">
+              <button
+                id="btnAnalyze"
+                class="btn btn-primary"
+                onclick="analyzeText()"
+              >
+                Analyze
+              </button>
+              <button
+                class="btn btn-outline-secondary"
+                onclick="clearAnalyze()"
+              >
+                Clear
+              </button>
+              <div
+                id="analyzeSpinner"
+                class="spinner-border spinner-inline text-primary ms-2"
+                role="status"
+                style="display: none"
+              ></div>
+            </div>
+
+            <div id="analyzeResult" style="display: none" class="mt-3">
+              <hr />
+              <h6>Results</h6>
+
+              <div class="mb-2">
+                <div class="small-muted">Threat type</div>
+                <div id="resThreatType" class="fw-semibold">—</div>
+              </div>
+
+              <div class="mb-2">
+                <div class="small-muted">Severity</div>
+                <div id="resSeverity" class="fw-semibold">—</div>
+              </div>
+
+              <div class="mb-2">
+                <div class="small-muted">Entities (NER)</div>
+                <pre id="resEntities">—</pre>
+              </div>
+
+              <div class="d-flex gap-2 justify-content-end">
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="copyAnalysis()"
+                >
+                  Copy
+                </button>
+                <button
+                  class="btn btn-success btn-sm"
+                  onclick="downloadAnalysis()"
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload CSV (Batch) -->
+          <div class="card p-3 mb-3">
+            <div class="section-title mb-2">Batch upload (CSV)</div>
+            <div class="small-muted mb-2">
+              CSV must contain a <code>text</code> column. Results will be
+              returned as a JSON file.
+            </div>
+            <input
+              id="csvFile"
+              type="file"
+              accept=".csv,text/csv"
+              class="form-control mb-2"
+            />
+            <div class="d-flex gap-2">
+              <button
+                id="btnUpload"
+                class="btn btn-primary"
+                onclick="uploadCsv()"
+              >
+                Upload & Analyze
+              </button>
+              <div
+                id="uploadSpinner"
+                class="spinner-border spinner-inline text-primary"
+                role="status"
+                style="display: none"
+              ></div>
+            </div>
+            <div id="uploadStatus" class="mt-2 small-muted"></div>
+          </div>
+
+          <!-- Ingestion logs / manual summary -->
+          <div class="card p-3 mb-3">
+            <div class="section-title mb-2">Last ingestion summary</div>
+            <pre
+              id="lastIngestSummary"
+              style="max-height: 260px; overflow: auto"
+            >
+No ingestion data yet.</pre
+            >
+          </div>
+        </div>
+
+        <!-- Right: Utilities, tips, and quick references -->
+        <aside>
+          <div class="card p-3 mb-3">
+            <div class="section-title mb-2">Project quick info</div>
+            <div class="small-muted">Endpoints used by this page</div>
+            <ul class="small-muted mt-2">
+              <li><code>POST /analyze</code> — analyze single text</li>
+              <li><code>POST /upload_csv</code> — batch CSV upload</li>
+              <li><code>POST /ingest_now</code> — trigger ingestion</li>
+              <li><code>GET /</code> — ingestion & health status</li>
+            </ul>
+          </div>
+
+          <div class="card p-3 mb-3">
+            <div class="section-title mb-2">Tips</div>
+            <ol class="small-muted">
+              <li>Use short samples first to validate model responses.</li>
+              <li>
+                Monitor ingestion frequency to avoid rate-limits (Twitter).
+              </li>
+              <li>Check server logs (uvicorn) for model load issues.</li>
+            </ol>
+          </div>
+
+          <div class="card p-3">
+            <div class="section-title mb-2">Last action</div>
+            <div id="lastAction" class="small-muted">—</div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="mt-4">
+        © CTI-NLP Project — ATMECE Mysuru · Dashboard
+      </footer>
     </div>
 
+    <!-- JS: Bootstrap + logic -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-      function analyzeText() {
-        const inputText = document.getElementById("inputText").value;
-        if (!inputText.trim()) {
-          alert("Please enter some text to analyze.");
+      // -----------------------
+      // Utilities
+      // -----------------------
+      function isoToLocal(iso) {
+        try {
+          return new Date(iso).toLocaleString();
+        } catch (e) {
+          return iso;
+        }
+      }
+
+      // -----------------------
+      // Status fetch & UI update
+      // -----------------------
+      async function fetchStatus() {
+        try {
+          const resp = await fetch("/", { cache: "no-store" });
+          if (!resp.ok) throw new Error("Status fetch failed: " + resp.status);
+          const json = await resp.json();
+          const st = json.ingestion_status || {};
+          // update counters
+          document.getElementById("lastRun").innerText = st.last_run
+            ? isoToLocal(st.last_run)
+            : "Never";
+          const sum = st.summary || {};
+          document.getElementById("countDark").innerText = sum.darkweb ?? 0;
+          document.getElementById("countTwitter").innerText = sum.twitter ?? 0;
+          document.getElementById("countMitre").innerText =
+            sum.mitre_attack ?? 0;
+          document.getElementById("countTotal").innerText =
+            st.total_records ?? 0;
+          document.getElementById("lastIngestSummary").innerText =
+            JSON.stringify(st, null, 2);
+          document.getElementById("modelStatus").innerText =
+            json.model_status ?? "Models loaded"; // optional field
+          document.getElementById("lastAction").innerText =
+            "Status refreshed at " + new Date().toLocaleString();
+        } catch (err) {
+          console.error(err);
+          document.getElementById("serverStatusDot").style.background =
+            "#dc3545";
+          document.getElementById("serverStatusText").innerText = "Unavailable";
+          document.getElementById("lastIngestSummary").innerText =
+            "Failed to fetch status: " + err.message;
+        }
+      }
+
+      async function refreshStatus() {
+        await fetchStatus();
+      }
+
+      // Auto refresh status every 60 seconds
+      fetchStatus();
+      setInterval(fetchStatus, 60_000);
+
+      // -----------------------
+      // Ingestion (manual trigger)
+      // -----------------------
+      async function runIngestionNow() {
+        document.getElementById("ingestSpinner").style.display = "inline-block";
+        document.getElementById("btnRunIngest").disabled = true;
+        document.getElementById("btnRunIngestLabel").innerText = "Running...";
+
+        try {
+          const r = await fetch("/ingest_now", { method: "POST" });
+          const j = await r.json();
+          if (r.ok && j.status === "success") {
+            document.getElementById("lastAction").innerText =
+              "Ingestion completed at " + new Date().toLocaleString();
+            // update UI with returned summary
+            const s = j.ingestion_summary || {};
+            document.getElementById("lastIngestSummary").innerText =
+              JSON.stringify(s, null, 2);
+            document.getElementById("countDark").innerText =
+              s.summary?.darkweb ?? 0;
+            document.getElementById("countTwitter").innerText =
+              s.summary?.twitter ?? 0;
+            document.getElementById("countMitre").innerText =
+              s.summary?.mitre_attack ?? 0;
+            document.getElementById("countTotal").innerText =
+              s.total_records ?? 0;
+          } else {
+            const msg = j?.message || "Ingestion failed";
+            alert("Ingestion error: " + msg);
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Ingestion request failed: " + err.message);
+        } finally {
+          document.getElementById("ingestSpinner").style.display = "none";
+          document.getElementById("btnRunIngest").disabled = false;
+          document.getElementById("btnRunIngestLabel").innerText =
+            "Run Ingestion Now";
+          fetchStatus(); // refresh
+        }
+      }
+
+      // -----------------------
+      // Analyze single text
+      // -----------------------
+      async function analyzeText() {
+        const txt = document.getElementById("analyzeTextArea").value.trim();
+        if (!txt) {
+          alert("Please enter text to analyze.");
           return;
         }
 
-        document.getElementById("loader").style.display = "block";
-        document.getElementById("results").style.display = "none";
+        // UI
+        document.getElementById("btnAnalyze").disabled = true;
+        document.getElementById("analyzeSpinner").style.display =
+          "inline-block";
+        document.getElementById("analyzeResult").style.display = "none";
 
-        fetch("/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: inputText }),
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            document.getElementById("loader").style.display = "none";
-            if (data.error) {
-              alert("Error: " + data.error);
-              return;
-            }
-
-            document.getElementById("threatType").innerText =
-              data.threat_type || "N/A";
-            document.getElementById("severity").innerText =
-              data.severity || "N/A";
-            document.getElementById("entities").innerText = JSON.stringify(
-              data.entities,
-              null,
-              2
-            );
-
-            document.getElementById("results").style.display = "block";
-          })
-          .catch((err) => {
-            document.getElementById("loader").style.display = "none";
-            alert("Request failed. Check server.");
-            console.error(err);
+        try {
+          const resp = await fetch("/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: txt }),
           });
+          const j = await resp.json();
+          if (!resp.ok) throw new Error(j?.error || "Analyze failed");
+
+          // Populate results
+          document.getElementById("resThreatType").innerText =
+            j.threat_type ?? "N/A";
+          document.getElementById("resSeverity").innerText =
+            j.severity ?? "N/A";
+          const ents = j.entities ?? j.extracted_iocs ?? j.entities_list ?? [];
+          document.getElementById("resEntities").innerText = JSON.stringify(
+            ents,
+            null,
+            2
+          );
+
+          document.getElementById("analyzeResult").style.display = "block";
+          document.getElementById("lastAction").innerText =
+            "Analyzed text at " + new Date().toLocaleString();
+        } catch (err) {
+          console.error(err);
+          alert("Analyze failed: " + err.message);
+        } finally {
+          document.getElementById("btnAnalyze").disabled = false;
+          document.getElementById("analyzeSpinner").style.display = "none";
+        }
       }
 
-      function runIngestion() {
-        document.getElementById("ingestLoader").style.display = "block";
-        document.getElementById("ingestResults").style.display = "none";
-
-        fetch("/ingest_now", { method: "POST" })
-          .then((r) => r.json())
-          .then((data) => {
-            document.getElementById("ingestLoader").style.display = "none";
-
-            if (data.status !== "success") {
-              alert("Ingestion failed: " + (data.message || "Unknown error"));
-              return;
-            }
-
-            document.getElementById("ingestSummary").innerText = JSON.stringify(
-              data.ingestion_summary,
-              null,
-              2
-            );
-            document.getElementById("ingestResults").style.display = "block";
-          })
-          .catch((err) => {
-            document.getElementById("ingestLoader").style.display = "none";
-            alert("Ingestion request failed.");
-            console.error(err);
-          });
+      function clearAnalyze() {
+        document.getElementById("analyzeTextArea").value = "";
+        document.getElementById("analyzeResult").style.display = "none";
       }
 
-      function copyResults() {
-        const resultsText = `
-Threat Type: ${document.getElementById("threatType").innerText}
-Severity: ${document.getElementById("severity").innerText}
-Entities: ${document.getElementById("entities").innerText}
-  `.trim();
-
-        navigator.clipboard.writeText(resultsText);
-        alert("Results copied to clipboard.");
+      function copyAnalysis() {
+        const text = `Threat Type: ${
+          document.getElementById("resThreatType").innerText
+        }\nSeverity: ${
+          document.getElementById("resSeverity").innerText
+        }\nEntities:\n${document.getElementById("resEntities").innerText}`;
+        navigator.clipboard.writeText(text);
+        toast("Analysis copied to clipboard");
       }
 
-      function downloadResults() {
-        const resultObj = {
-          threat_type: document.getElementById("threatType").innerText,
-          severity: document.getElementById("severity").innerText,
-          entities: JSON.parse(document.getElementById("entities").innerText),
+      function downloadAnalysis() {
+        const data = {
+          threat_type: document.getElementById("resThreatType").innerText,
+          severity: document.getElementById("resSeverity").innerText,
+          entities: JSON.parse(
+            document.getElementById("resEntities").innerText || "[]"
+          ),
         };
-
-        const blob = new Blob([JSON.stringify(resultObj, null, 2)], {
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
           type: "application/json",
         });
         const url = URL.createObjectURL(blob);
-
         const a = document.createElement("a");
         a.href = url;
-        a.download = "threat_analysis_result.json";
+        a.download = "analysis_result.json";
         a.click();
         URL.revokeObjectURL(url);
+      }
+
+      // -----------------------
+      // Upload CSV (batch)
+      // -----------------------
+      async function uploadCsv() {
+        const fileInput = document.getElementById("csvFile");
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert("Select a CSV file first.");
+          return;
+        }
+        const file = fileInput.files[0];
+
+        document.getElementById("btnUpload").disabled = true;
+        document.getElementById("uploadSpinner").style.display = "inline-block";
+        document.getElementById("uploadStatus").innerText = "Uploading...";
+
+        try {
+          const form = new FormData();
+          form.append("file", file, file.name);
+
+          const resp = await fetch("/upload_csv", {
+            method: "POST",
+            body: form,
+          });
+          if (!resp.ok) {
+            const err = await resp
+              .json()
+              .catch(() => ({ error: "Upload failed" }));
+            throw new Error(err?.error || "Upload failed");
+          }
+          // download returned file (JSON)
+          const blob = await resp.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "cti_batch_results.json";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          URL.revokeObjectURL(url);
+
+          document.getElementById("uploadStatus").innerText =
+            "Batch processed — downloaded results.";
+          document.getElementById("lastAction").innerText =
+            "Uploaded CSV at " + new Date().toLocaleString();
+        } catch (err) {
+          console.error(err);
+          document.getElementById("uploadStatus").innerText =
+            "Upload error: " + err.message;
+          alert("Upload failed: " + err.message);
+        } finally {
+          document.getElementById("btnUpload").disabled = false;
+          document.getElementById("uploadSpinner").style.display = "none";
+        }
+      }
+
+      // -----------------------
+      // Small helper: toast message
+      // -----------------------
+      function toast(msg) {
+        const el = document.createElement("div");
+        el.className = "position-fixed bottom-0 end-0 p-3";
+        el.style.zIndex = 1080;
+        el.innerHTML = `<div class="toast show align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white ms-2 me-2" onclick="this.closest('.position-fixed').remove()"></button></div></div>`;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
       }
     </script>
   </body>
