@@ -34,3 +34,7 @@
 {"source": "darkweb", "text": "Ransomware group advertising stolen corporate data.", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:57:19.013437"}
 {"source": "mitre_attack", "text": "T1059: Command and Scripting Interpreter", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:57:19.013447"}
 {"source": "mitre_attack", "text": "T1566: Phishing technique observed", "lang": "en", "translated": false, "timestamp": "2025-08-11T16:57:19.013453"}
+{"source": "darkweb", "text": "Credential dump found on popular forum.", "lang": "en", "translated": false, "timestamp": "2025-08-12T04:01:55.077296"}
+{"source": "darkweb", "text": "Ransomware group advertising stolen corporate data.", "lang": "en", "translated": false, "timestamp": "2025-08-12T04:01:55.077348"}
+{"source": "mitre_attack", "text": "T1059: Command and Scripting Interpreter", "lang": "en", "translated": false, "timestamp": "2025-08-12T04:01:55.077368"}
+{"source": "mitre_attack", "text": "T1566: Phishing technique observed", "lang": "en", "translated": false, "timestamp": "2025-08-12T04:01:55.077379"}
