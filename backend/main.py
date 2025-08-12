@@ -66,6 +66,25 @@ async def root():
         "ingestion_status": status_data
     }
 
+
+@app.get("/feed")
+async def get_feed(limit: int = 20):
+    file_path = os.path.join("data", "ingested_cti.jsonl")
+    if not os.path.exists(file_path):
+        return []
+
+    entries = []
+    with open(file_path, "r", encoding="utf-8") as f:
+        for line in f:
+            try:
+                entries.append(json.loads(line.strip()))
+            except:
+                continue
+
+    # Return latest first
+    entries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+    return entries[:limit]
+
 # -------------------
 # Trigger ingestion manually
 # -------------------
