@@ -1,4 +1,3 @@
-<!-- dashboard/templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -16,7 +15,8 @@
       .card {
         margin-top: 20px;
       }
-      #loader {
+      #loader,
+      #ingestLoader {
         display: none;
       }
       pre {
@@ -29,6 +29,7 @@
     <div class="container py-5">
       <h2 class="text-center mb-4">Cyber Threat Intelligence - NLP Analysis</h2>
 
+      <!-- Threat Analysis Section -->
       <div class="mb-4">
         <textarea
           id="inputText"
@@ -37,7 +38,6 @@
           placeholder="Paste threat intelligence report or suspicious text here..."
         ></textarea>
       </div>
-
       <div class="d-grid gap-2 col-6 mx-auto">
         <button class="btn btn-primary" onclick="analyzeText()">
           Analyze Threat
@@ -65,9 +65,7 @@
 
         <div class="card">
           <div class="card-header">Entities (NER)</div>
-          <div class="card-body">
-            <pre id="entities"></pre>
-          </div>
+          <div class="card-body"><pre id="entities"></pre></div>
         </div>
 
         <div class="d-flex justify-content-end mt-3">
@@ -80,6 +78,35 @@
           <button class="btn btn-outline-success" onclick="downloadResults()">
             Download
           </button>
+        </div>
+      </div>
+
+      <hr class="my-5" />
+
+      <!-- Real-time Ingestion Section -->
+      <h4>Real-Time Ingestion</h4>
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-warning" onclick="runIngestion()">
+          Run Ingestion Now
+        </button>
+      </div>
+
+      <div class="text-center my-3">
+        <div
+          class="spinner-border text-warning"
+          role="status"
+          id="ingestLoader"
+        >
+          <span class="visually-hidden">Ingesting...</span>
+        </div>
+      </div>
+
+      <div id="ingestResults" class="mt-4" style="display: none">
+        <div class="card">
+          <div class="card-header">Last Ingestion Summary</div>
+          <div class="card-body">
+            <pre id="ingestSummary"></pre>
+          </div>
         </div>
       </div>
     </div>
@@ -100,10 +127,9 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: inputText }),
         })
-          .then((response) => response.json())
+          .then((r) => r.json())
           .then((data) => {
             document.getElementById("loader").style.display = "none";
-
             if (data.error) {
               alert("Error: " + data.error);
               return;
@@ -128,12 +154,40 @@
           });
       }
 
+      function runIngestion() {
+        document.getElementById("ingestLoader").style.display = "block";
+        document.getElementById("ingestResults").style.display = "none";
+
+        fetch("/ingest_now", { method: "POST" })
+          .then((r) => r.json())
+          .then((data) => {
+            document.getElementById("ingestLoader").style.display = "none";
+
+            if (data.status !== "success") {
+              alert("Ingestion failed: " + (data.message || "Unknown error"));
+              return;
+            }
+
+            document.getElementById("ingestSummary").innerText = JSON.stringify(
+              data.ingestion_summary,
+              null,
+              2
+            );
+            document.getElementById("ingestResults").style.display = "block";
+          })
+          .catch((err) => {
+            document.getElementById("ingestLoader").style.display = "none";
+            alert("Ingestion request failed.");
+            console.error(err);
+          });
+      }
+
       function copyResults() {
         const resultsText = `
 Threat Type: ${document.getElementById("threatType").innerText}
 Severity: ${document.getElementById("severity").innerText}
 Entities: ${document.getElementById("entities").innerText}
-      `.trim();
+  `.trim();
 
         navigator.clipboard.writeText(resultsText);
         alert("Results copied to clipboard.");
