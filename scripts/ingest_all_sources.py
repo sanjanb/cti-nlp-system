@@ -7,10 +7,16 @@ from datetime import datetime, timezone
 # Ensure root path is in sys.path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Source fetchers
 from data_ingestion.fetch_darkweb import fetch_darkweb
 from data_ingestion.fetch_twitter import fetch_twitter
 from data_ingestion.fetch_mitre_attack import fetch_mitre_attack
 from data_ingestion.preprocess import preprocess_entries
+
+# ML pipelines
+from backend.threat_ner import extract_threat_entities
+from backend.classifier import classify_threat
+from backend.severity_predictor import predict_severity
 
 # Paths
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -18,71 +24,71 @@ DATA_DIR = os.path.join(ROOT_DIR, "data")
 OUTPUT_FILE = os.path.join(DATA_DIR, "ingested_cti.jsonl")
 STATUS_FILE = os.path.join(DATA_DIR, "last_ingestion.json")
 
-# Ensure data directory exists
-os.makedirs(DATA_DIR, exist_ok=True)
-
 def main():
     summary = {
         "darkweb": 0,
         "twitter": 0,
         "mitre_attack": 0
     }
-    errors = {}
+
     all_entries = []
 
-    # Fetch Darkweb
-    try:
-        darkweb_data = fetch_darkweb()
-        summary["darkweb"] = len(darkweb_data)
-        all_entries.extend(darkweb_data)
-    except Exception as e:
-        errors["darkweb"] = str(e)
+    # Fetch raw data
+    darkweb_data = fetch_darkweb()
+    summary["darkweb"] = len(darkweb_data)
+    all_entries.extend(darkweb_data)
 
-    # Fetch Twitter
-    try:
-        twitter_data = fetch_twitter()
-        summary["twitter"] = len(twitter_data)
-        all_entries.extend(twitter_data)
-    except Exception as e:
-        errors["twitter"] = str(e)
+    twitter_data = fetch_twitter()
+    summary["twitter"] = len(twitter_data)
+    all_entries.extend(twitter_data)
 
-    # Fetch MITRE ATT&CK
-    try:
-        mitre_data = fetch_mitre_attack()
-        summary["mitre_attack"] = len(mitre_data)
-        all_entries.extend(mitre_data)
-    except Exception as e:
-        errors["mitre_attack"] = str(e)
+    mitre_data = fetch_mitre_attack()
+    summary["mitre_attack"] = len(mitre_data)
+    all_entries.extend(mitre_data)
 
-    # Preprocess entries if we got any
-    if all_entries:
-        all_entries = preprocess_entries(all_entries)
+    # Preprocess
+    all_entries = preprocess_entries(all_entries)
 
-        # Append to JSONL
-        with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
-            for entry in all_entries:
-                entry["timestamp"] = datetime.now(timezone.utc).isoformat()
-                f.write(json.dumps(entry) + "\n")
+    enriched_entries = []
+    for entry in all_entries:
+        try:
+            text = entry.get("text", "")
+            if not text.strip():
+                continue
 
-    # Save status JSON
+            # Enrichment: NER, classification, severity
+            entities = extract_threat_entities(text)
+            threat_type = classify_threat(text)
+            severity = predict_severity(text)
+
+            entry.update({
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "entities": entities,
+                "threat_type": str(threat_type),
+                "severity": str(severity)
+            })
+
+            enriched_entries.append(entry)
+
+        except Exception as e:
+            print(f"[WARN] Failed to process entry: {e}")
+
+    # Save to JSONL
+    os.makedirs(DATA_DIR, exist_ok=True)
+    with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
+        for entry in enriched_entries:
+            f.write(json.dumps(entry) + "\n")
+
+    # Save status file
     status_data = {
         "last_run": datetime.now(timezone.utc).isoformat(),
         "summary": summary,
-        "total_records": len(all_entries),
-        "errors": errors
+        "total_records": len(enriched_entries)
     }
     with open(STATUS_FILE, "w", encoding="utf-8") as f:
         json.dump(status_data, f, indent=2)
 
-    # Console log
-    print("\n[INFO] Ingestion Summary:")
-    for source, count in summary.items():
-        print(f"  - {source}: {count} records")
-    if errors:
-        print("\n[WARN] Some sources failed:")
-        for src, err in errors.items():
-            print(f"  - {src}: {err}")
-    print(f"=> Total appended: {len(all_entries)} to {OUTPUT_FILE}\n")
+    print(f"[INFO] Ingestion Summary: {status_data}")
 
 if __name__ == "__main__":
     main()
