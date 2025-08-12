@@ -72,10 +72,34 @@ async def root():
 @app.post("/ingest_now")
 async def ingest_now():
     try:
+        # Run ingestion
         ingest_all_sources_main()
-        return {"status": "success", "message": "Ingestion completed successfully"}
+
+        # Read the updated status file
+        status_file = os.path.join("data", "last_ingestion.json")
+        if os.path.exists(status_file):
+            with open(status_file, "r", encoding="utf-8") as f:
+                status_data = json.load(f)
+        else:
+            status_data = {
+                "last_run": None,
+                "summary": {},
+                "total_records": 0,
+                "errors": {}
+            }
+
+        return {
+            "status": "success",
+            "message": "Ingestion completed successfully",
+            "ingestion_summary": status_data
+        }
+
     except Exception as e:
-        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+        return JSONResponse(status_code=500, content={
+            "status": "error",
+            "message": str(e)
+        })
+
 
 # -------------------
 # Dashboard
