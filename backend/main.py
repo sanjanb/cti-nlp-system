@@ -1,36 +1,40 @@
-# backend/main.py
-
-import asyncio
-import logging
-import tempfile
-import os
-import json
-import pandas as pd
-
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.templating import Jinja2Templates
-
-from datetime import datetime, timezone
 from scripts.ingest_all_sources import main as ingest_all_sources_main
+
+import asyncio
+import pandas as pd
+import tempfile
+import os
+import json
 
 from backend.threat_ner import extract_threat_entities
 from backend.classifier import classify_threat
 from backend.severity_predictor import predict_severity
 
+app = FastAPI(title="CTI-NLP API")
 
 # -------------------
-# App setup
+# Background ingestion
 # -------------------
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
+async def ingestion_loop(interval_minutes=10):
+    while True:
+        try:
+            print("[INFO] Running real-time ingestion...")
+            ingest_all_sources_main()
+        except Exception as e:
+            print(f"[ERROR] Ingestion loop failed: {e}")
+        await asyncio.sleep(interval_minutes * 60)
 
-app = FastAPI(title="CTI-NLP API with Real-Time Ingestion")
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(ingestion_loop(interval_minutes=10))
 
-# Enable CORS
+# -------------------
+# CORS Middleware
+# -------------------
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -41,54 +45,48 @@ app.add_middleware(
 
 templates = Jinja2Templates(directory="dashboard/templates")
 
-
 # -------------------
-# Background ingestion
-# -------------------
-async def ingestion_loop(interval_minutes=10):
-    """Runs data ingestion in background every X minutes."""
-    while True:
-        try:
-            logging.info("Running real-time ingestion...")
-            # Run ingestion in a thread to avoid blocking event loop
-            await asyncio.to_thread(ingest_all_sources_main)
-            logging.info("Ingestion cycle completed.")
-        except Exception as e:
-            logging.error(f"Ingestion loop failed: {e}")
-        await asyncio.sleep(interval_minutes * 60)
-
-
-@app.on_event("startup")
-async def startup_event():
-    """Start background ingestion task."""
-    asyncio.create_task(ingestion_loop(interval_minutes=10))
-
-
-# -------------------
-# API Routes
+# Root endpoint with ingestion status
 # -------------------
 @app.get("/")
-def root():
-    status_path = os.path.join("data", "last_ingestion.json")
-    last_status = {}
-    if os.path.exists(status_path):
-        with open(status_path, "r", encoding="utf-8") as f:
-            last_status = json.load(f)
-
+async def root():
+    status_file = os.path.join("data", "last_ingestion.json")
+    if os.path.exists(status_file):
+        with open(status_file, "r", encoding="utf-8") as f:
+            status_data = json.load(f)
+    else:
+        status_data = {
+            "last_run": None,
+            "summary": {},
+            "total_records": 0,
+            "errors": {}
+        }
     return {
         "status": "CTI-NLP backend running with real-time ingestion",
-        "last_ingestion": last_status.get("last_run"),
-        "ingestion_summary": last_status.get("summary", {}),
-        "total_records_last_run": last_status.get("total_records", 0)
+        "ingestion_status": status_data
     }
 
+# -------------------
+# Trigger ingestion manually
+# -------------------
+@app.post("/ingest_now")
+async def ingest_now():
+    try:
+        ingest_all_sources_main()
+        return {"status": "success", "message": "Ingestion completed successfully"}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
 
-
+# -------------------
+# Dashboard
+# -------------------
 @app.get("/dashboard")
 def serve_dashboard(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-
+# -------------------
+# Analyze text
+# -------------------
 @app.post("/analyze")
 async def analyze_text(payload: dict):
     text = payload.get("text", "")
@@ -108,10 +106,11 @@ async def analyze_text(payload: dict):
         }
 
     except Exception as e:
-        logging.exception("Error in /analyze endpoint")
         return JSONResponse(status_code=500, content={"error": str(e)})
 
-
+# -------------------
+# Upload CSV
+# -------------------
 @app.post("/upload_csv")
 async def upload_csv(file: UploadFile = File(...)):
     try:
@@ -120,7 +119,6 @@ async def upload_csv(file: UploadFile = File(...)):
             return JSONResponse(status_code=400, content={"error": "CSV must contain a 'text' column"})
 
         results = []
-
         for _, row in df.iterrows():
             text = row["text"]
             if not isinstance(text, str):
@@ -141,12 +139,7 @@ async def upload_csv(file: UploadFile = File(...)):
             json.dump(results, f, indent=2)
             file_path = f.name
 
-        return FileResponse(
-            path=file_path,
-            filename="cti_batch_results.json",
-            media_type='application/json'
-        )
+        return FileResponse(path=file_path, filename="cti_batch_results.json", media_type='application/json')
 
     except Exception as e:
-        logging.exception("Error in /upload_csv endpoint")
         return JSONResponse(status_code=500, content={"error": str(e)})
