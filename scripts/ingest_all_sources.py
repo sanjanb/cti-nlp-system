@@ -14,52 +14,66 @@ from data_ingestion.preprocess import preprocess_entries
 
 OUTPUT_DIR = "data"
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, "ingested_cti.jsonl")
+# scripts/ingest_all_sources.py
+import json
+from datetime import datetime, timezone
+import os
+from data_ingestion.fetch_darkweb import fetch_darkweb
+from data_ingestion.fetch_twitter import fetch_twitter
+from data_ingestion.fetch_mitre_attack import fetch_mitre_attack
+from data_ingestion.preprocess import preprocess_entries
 
+# Ensure paths work from any run location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(SCRIPT_DIR)
+DATA_DIR = os.path.join(ROOT_DIR, "data")
 
-def ensure_data_dir():
-    """Ensure data folder exists."""
-    if not os.path.exists(OUTPUT_DIR):
-        os.makedirs(OUTPUT_DIR)
-        print(f"[INFO] Created directory: {OUTPUT_DIR}")
-
+OUTPUT_FILE = os.path.join(DATA_DIR, "ingested_cti.jsonl")
+STATUS_FILE = os.path.join(DATA_DIR, "last_ingestion.json")
 
 def main():
-    ensure_data_dir()
-
-    all_entries = []
-    source_counts = {}
-
-    sources = {
-        "darkweb": fetch_darkweb,
-        "twitter": fetch_twitter,
-        "mitre_attack": fetch_mitre_attack
+    summary = {
+        "darkweb": 0,
+        "twitter": 0,
+        "mitre_attack": 0
     }
 
-    # Fetch from all sources
-    for name, func in sources.items():
-        try:
-            entries = func()
-            source_counts[name] = len(entries)
-            all_entries.extend(entries)
-        except Exception as e:
-            source_counts[name] = 0
-            print(f"[ERROR] Failed to fetch from {name}: {e}")
+    all_entries = []
 
-    # Preprocess entries
+    # Darkweb
+    darkweb_data = fetch_darkweb()
+    summary["darkweb"] = len(darkweb_data)
+    all_entries.extend(darkweb_data)
+
+    # Twitter
+    twitter_data = fetch_twitter()
+    summary["twitter"] = len(twitter_data)
+    all_entries.extend(twitter_data)
+
+    # MITRE ATT&CK
+    mitre_data = fetch_mitre_attack()
+    summary["mitre_attack"] = len(mitre_data)
+    all_entries.extend(mitre_data)
+
+    # Preprocess
     all_entries = preprocess_entries(all_entries)
 
-    # Append with timestamp
+    # Append to JSONL
     with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
         for entry in all_entries:
-            entry["timestamp"] = datetime.utcnow().isoformat()
+            entry["timestamp"] = datetime.now(timezone.utc).isoformat()
             f.write(json.dumps(entry) + "\n")
 
-    # Summary log
-    print("\n[INFO] Ingestion Summary:")
-    for src, count in source_counts.items():
-        print(f"  - {src}: {count} records")
-    print(f"  => Total appended: {len(all_entries)} to {OUTPUT_FILE}")
+    # Save status
+    status_data = {
+        "last_run": datetime.now(timezone.utc).isoformat(),
+        "summary": summary,
+        "total_records": len(all_entries)
+    }
+    with open(STATUS_FILE, "w", encoding="utf-8") as f:
+        json.dump(status_data, f, indent=2)
 
+    print(f"[INFO] Ingestion Summary: {status_data}")
 
 if __name__ == "__main__":
     main()

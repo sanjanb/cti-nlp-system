@@ -69,10 +69,19 @@ async def startup_event():
 # -------------------
 @app.get("/")
 def root():
+    status_path = os.path.join("data", "last_ingestion.json")
+    last_status = {}
+    if os.path.exists(status_path):
+        with open(status_path, "r", encoding="utf-8") as f:
+            last_status = json.load(f)
+
     return {
         "status": "CTI-NLP backend running with real-time ingestion",
-        "last_ingestion_time": datetime.now(timezone.utc).isoformat()
+        "last_ingestion": last_status.get("last_run"),
+        "ingestion_summary": last_status.get("summary", {}),
+        "total_records_last_run": last_status.get("total_records", 0)
     }
+
 
 
 @app.get("/dashboard")
