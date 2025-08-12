@@ -15,7 +15,6 @@
       :root {
         --brand: #0d6efd;
         --muted: #6c757d;
-        --card-bg: #ffffff;
         --page-bg: #f6f8fb;
       }
       body {
@@ -34,11 +33,6 @@
         font-weight: 700;
         margin: 0;
         font-size: 1.25rem;
-      }
-      .app-sub {
-        margin: 0;
-        font-size: 0.9rem;
-        opacity: 0.95;
       }
       .card {
         border: none;
@@ -61,22 +55,11 @@
         height: 1rem;
         border-width: 0.16rem;
       }
-      .section-title {
-        font-weight: 600;
-        color: #222;
-      }
-      footer {
-        text-align: center;
-        color: var(--muted);
-        margin-top: 28px;
-        font-size: 0.85rem;
-      }
       @media (min-width: 992px) {
         .grid-2 {
           display: grid;
           grid-template-columns: 1fr 420px;
           gap: 20px;
-          align-items: start;
         }
       }
     </style>
@@ -87,9 +70,8 @@
       <div class="app-header d-flex justify-content-between align-items-center">
         <div>
           <h1 class="app-title">AI-Based Predictive CTI — Dashboard</h1>
-          <p class="app-sub mb-0">
-            Analyze threat text, run ingestion, upload batches & monitor
-            ingestion status.
+          <p class="mb-0" style="opacity: 0.95">
+            Analyze threats, run ingestion, upload batches & monitor status
           </p>
         </div>
         <div class="text-end small-muted">
@@ -109,21 +91,18 @@
                 <div class="small-muted">Ingestion last run</div>
                 <div id="lastRun" class="fw-semibold">—</div>
               </div>
-              <div>
-                <button
-                  id="btnRunIngest"
-                  class="btn btn-outline-primary btn-sm"
-                  onclick="runIngestionNow()"
-                >
-                  <span id="btnRunIngestLabel">Run Ingestion Now</span>
-                  <div
-                    id="ingestSpinner"
-                    class="spinner-border spinner-inline text-primary ms-2"
-                    role="status"
-                    style="display: none"
-                  ></div>
-                </button>
-              </div>
+              <button
+                id="btnRunIngest"
+                class="btn btn-outline-primary btn-sm"
+                onclick="runIngestionNow()"
+              >
+                <span id="btnRunIngestLabel">Run Ingestion Now</span>
+                <div
+                  id="ingestSpinner"
+                  class="spinner-border spinner-inline text-primary ms-2"
+                  style="display: none"
+                ></div>
+              </button>
             </div>
             <hr />
             <div class="d-flex gap-3">
@@ -140,7 +119,7 @@
                 <div id="countMitre" class="fw-bold">0</div>
               </div>
               <div>
-                <div class="small-muted">Appended</div>
+                <div class="small-muted">Total</div>
                 <div id="countTotal" class="fw-bold">0</div>
               </div>
             </div>
@@ -201,20 +180,18 @@
         </div>
       </div>
 
-      <!-- Two-column layout: Main analysis + Right utilities -->
       <div class="grid-2">
-        <!-- Left: Analysis & Batch -->
+        <!-- Left -->
         <div>
-          <!-- Analyze single text -->
+          <!-- Analyze text -->
           <div class="card p-3 mb-3">
-            <div class="section-title mb-2">Analyze text</div>
+            <div class="fw-semibold mb-2">Analyze text</div>
             <textarea
               id="analyzeTextArea"
               class="form-control mb-2"
               rows="6"
-              placeholder="Paste threat intelligence report or suspicious text here..."
+              placeholder="Paste threat intel text here..."
             ></textarea>
-
             <div class="d-flex gap-2">
               <button
                 id="btnAnalyze"
@@ -232,30 +209,24 @@
               <div
                 id="analyzeSpinner"
                 class="spinner-border spinner-inline text-primary ms-2"
-                role="status"
                 style="display: none"
               ></div>
             </div>
-
             <div id="analyzeResult" style="display: none" class="mt-3">
               <hr />
               <h6>Results</h6>
-
               <div class="mb-2">
                 <div class="small-muted">Threat type</div>
                 <div id="resThreatType" class="fw-semibold">—</div>
               </div>
-
               <div class="mb-2">
                 <div class="small-muted">Severity</div>
                 <div id="resSeverity" class="fw-semibold">—</div>
               </div>
-
               <div class="mb-2">
                 <div class="small-muted">Entities (NER)</div>
                 <pre id="resEntities">—</pre>
               </div>
-
               <div class="d-flex gap-2 justify-content-end">
                 <button
                   class="btn btn-outline-secondary btn-sm"
@@ -273,9 +244,9 @@
             </div>
           </div>
 
-          <!-- Upload CSV (Batch) -->
+          <!-- Upload CSV -->
           <div class="card p-3 mb-3">
-            <div class="section-title mb-2">Batch upload (CSV)</div>
+            <div class="fw-semibold mb-2">Batch upload (CSV)</div>
             <div class="small-muted mb-2">
               CSV must contain a <code>text</code> column. Results will be
               returned as a JSON file.
@@ -297,16 +268,15 @@
               <div
                 id="uploadSpinner"
                 class="spinner-border spinner-inline text-primary"
-                role="status"
                 style="display: none"
               ></div>
             </div>
             <div id="uploadStatus" class="mt-2 small-muted"></div>
           </div>
 
-          <!-- Ingestion logs / manual summary -->
+          <!-- Ingestion logs -->
           <div class="card p-3 mb-3">
-            <div class="section-title mb-2">Last ingestion summary</div>
+            <div class="fw-semibold mb-2">Last ingestion summary</div>
             <pre
               id="lastIngestSummary"
               style="max-height: 260px; overflow: auto"
@@ -316,11 +286,10 @@ No ingestion data yet.</pre
           </div>
         </div>
 
-        <!-- Right: Utilities, tips, and quick references -->
+        <!-- Right -->
         <aside>
           <div class="card p-3 mb-3">
-            <div class="section-title mb-2">Project quick info</div>
-            <div class="small-muted">Endpoints used by this page</div>
+            <div class="fw-semibold mb-2">Project quick info</div>
             <ul class="small-muted mt-2">
               <li><code>POST /analyze</code> — analyze single text</li>
               <li><code>POST /upload_csv</code> — batch CSV upload</li>
@@ -328,9 +297,8 @@ No ingestion data yet.</pre
               <li><code>GET /</code> — ingestion & health status</li>
             </ul>
           </div>
-
           <div class="card p-3 mb-3">
-            <div class="section-title mb-2">Tips</div>
+            <div class="fw-semibold mb-2">Tips</div>
             <ol class="small-muted">
               <li>Use short samples first to validate model responses.</li>
               <li>
@@ -339,26 +307,21 @@ No ingestion data yet.</pre
               <li>Check server logs (uvicorn) for model load issues.</li>
             </ol>
           </div>
-
           <div class="card p-3">
-            <div class="section-title mb-2">Last action</div>
+            <div class="fw-semibold mb-2">Last action</div>
             <div id="lastAction" class="small-muted">—</div>
           </div>
         </aside>
       </div>
 
-      <footer class="mt-4">
+      <footer class="mt-4 small-muted text-center">
         © CTI-NLP Project — ATMECE Mysuru · Dashboard
       </footer>
     </div>
 
-    <!-- JS: Bootstrap + logic -->
+    <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
-      // -----------------------
-      // Utilities
-      // -----------------------
       function isoToLocal(iso) {
         try {
           return new Date(iso).toLocaleString();
@@ -367,16 +330,11 @@ No ingestion data yet.</pre
         }
       }
 
-      // -----------------------
-      // Status fetch & UI update
-      // -----------------------
       async function fetchStatus() {
         try {
           const resp = await fetch("/", { cache: "no-store" });
-          if (!resp.ok) throw new Error("Status fetch failed: " + resp.status);
           const json = await resp.json();
           const st = json.ingestion_status || {};
-          // update counters
           document.getElementById("lastRun").innerText = st.last_run
             ? isoToLocal(st.last_run)
             : "Never";
@@ -390,7 +348,7 @@ No ingestion data yet.</pre
           document.getElementById("lastIngestSummary").innerText =
             JSON.stringify(st, null, 2);
           document.getElementById("modelStatus").innerText =
-            json.model_status ?? "Models loaded"; // optional field
+            json.model_status ?? "Models loaded";
           document.getElementById("lastAction").innerText =
             "Status refreshed at " + new Date().toLocaleString();
         } catch (err) {
@@ -402,30 +360,22 @@ No ingestion data yet.</pre
             "Failed to fetch status: " + err.message;
         }
       }
-
       async function refreshStatus() {
         await fetchStatus();
       }
-
-      // Auto refresh status every 60 seconds
       fetchStatus();
-      setInterval(fetchStatus, 60_000);
+      setInterval(fetchStatus, 60000);
 
-      // -----------------------
-      // Ingestion (manual trigger)
-      // -----------------------
       async function runIngestionNow() {
         document.getElementById("ingestSpinner").style.display = "inline-block";
         document.getElementById("btnRunIngest").disabled = true;
         document.getElementById("btnRunIngestLabel").innerText = "Running...";
-
         try {
           const r = await fetch("/ingest_now", { method: "POST" });
           const j = await r.json();
           if (r.ok && j.status === "success") {
             document.getElementById("lastAction").innerText =
               "Ingestion completed at " + new Date().toLocaleString();
-            // update UI with returned summary
             const s = j.ingestion_summary || {};
             document.getElementById("lastIngestSummary").innerText =
               JSON.stringify(s, null, 2);
@@ -438,37 +388,29 @@ No ingestion data yet.</pre
             document.getElementById("countTotal").innerText =
               s.total_records ?? 0;
           } else {
-            const msg = j?.message || "Ingestion failed";
-            alert("Ingestion error: " + msg);
+            alert("Ingestion error: " + (j?.message || "Failed"));
           }
         } catch (err) {
-          console.error(err);
-          alert("Ingestion request failed: " + err.message);
+          alert("Ingestion failed: " + err.message);
         } finally {
           document.getElementById("ingestSpinner").style.display = "none";
           document.getElementById("btnRunIngest").disabled = false;
           document.getElementById("btnRunIngestLabel").innerText =
             "Run Ingestion Now";
-          fetchStatus(); // refresh
+          fetchStatus();
         }
       }
 
-      // -----------------------
-      // Analyze single text
-      // -----------------------
       async function analyzeText() {
         const txt = document.getElementById("analyzeTextArea").value.trim();
         if (!txt) {
-          alert("Please enter text to analyze.");
+          alert("Enter text to analyze.");
           return;
         }
-
-        // UI
         document.getElementById("btnAnalyze").disabled = true;
         document.getElementById("analyzeSpinner").style.display =
           "inline-block";
         document.getElementById("analyzeResult").style.display = "none";
-
         try {
           const resp = await fetch("/analyze", {
             method: "POST",
@@ -477,36 +419,29 @@ No ingestion data yet.</pre
           });
           const j = await resp.json();
           if (!resp.ok) throw new Error(j?.error || "Analyze failed");
-
-          // Populate results
           document.getElementById("resThreatType").innerText =
             j.threat_type ?? "N/A";
           document.getElementById("resSeverity").innerText =
             j.severity ?? "N/A";
-          const ents = j.entities ?? j.extracted_iocs ?? j.entities_list ?? [];
           document.getElementById("resEntities").innerText = JSON.stringify(
-            ents,
+            j.entities ?? [],
             null,
             2
           );
-
           document.getElementById("analyzeResult").style.display = "block";
           document.getElementById("lastAction").innerText =
             "Analyzed text at " + new Date().toLocaleString();
         } catch (err) {
-          console.error(err);
           alert("Analyze failed: " + err.message);
         } finally {
           document.getElementById("btnAnalyze").disabled = false;
           document.getElementById("analyzeSpinner").style.display = "none";
         }
       }
-
       function clearAnalyze() {
         document.getElementById("analyzeTextArea").value = "";
         document.getElementById("analyzeResult").style.display = "none";
       }
-
       function copyAnalysis() {
         const text = `Threat Type: ${
           document.getElementById("resThreatType").innerText
@@ -516,7 +451,6 @@ No ingestion data yet.</pre
         navigator.clipboard.writeText(text);
         toast("Analysis copied to clipboard");
       }
-
       function downloadAnalysis() {
         const data = {
           threat_type: document.getElementById("resThreatType").innerText,
@@ -536,36 +470,24 @@ No ingestion data yet.</pre
         URL.revokeObjectURL(url);
       }
 
-      // -----------------------
-      // Upload CSV (batch)
-      // -----------------------
       async function uploadCsv() {
         const fileInput = document.getElementById("csvFile");
-        if (!fileInput.files || fileInput.files.length === 0) {
-          alert("Select a CSV file first.");
+        if (!fileInput.files.length) {
+          alert("Select a CSV file.");
           return;
         }
-        const file = fileInput.files[0];
-
         document.getElementById("btnUpload").disabled = true;
         document.getElementById("uploadSpinner").style.display = "inline-block";
         document.getElementById("uploadStatus").innerText = "Uploading...";
-
         try {
           const form = new FormData();
-          form.append("file", file, file.name);
-
+          form.append("file", fileInput.files[0]);
           const resp = await fetch("/upload_csv", {
             method: "POST",
             body: form,
           });
-          if (!resp.ok) {
-            const err = await resp
-              .json()
-              .catch(() => ({ error: "Upload failed" }));
-            throw new Error(err?.error || "Upload failed");
-          }
-          // download returned file (JSON)
+          if (!resp.ok)
+            throw new Error((await resp.json()).error || "Upload failed");
           const blob = await resp.blob();
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
@@ -575,13 +497,11 @@ No ingestion data yet.</pre
           a.click();
           a.remove();
           URL.revokeObjectURL(url);
-
           document.getElementById("uploadStatus").innerText =
             "Batch processed — downloaded results.";
           document.getElementById("lastAction").innerText =
             "Uploaded CSV at " + new Date().toLocaleString();
         } catch (err) {
-          console.error(err);
           document.getElementById("uploadStatus").innerText =
             "Upload error: " + err.message;
           alert("Upload failed: " + err.message);
@@ -590,15 +510,11 @@ No ingestion data yet.</pre
           document.getElementById("uploadSpinner").style.display = "none";
         }
       }
-
-      // -----------------------
-      // Small helper: toast message
-      // -----------------------
       function toast(msg) {
         const el = document.createElement("div");
         el.className = "position-fixed bottom-0 end-0 p-3";
         el.style.zIndex = 1080;
-        el.innerHTML = `<div class="toast show align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white ms-2 me-2" onclick="this.closest('.position-fixed').remove()"></button></div></div>`;
+        el.innerHTML = `<div class="toast show text-bg-dark"><div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white ms-2 me-2" onclick="this.closest('.position-fixed').remove()"></button></div></div>`;
         document.body.appendChild(el);
         setTimeout(() => el.remove(), 6000);
       }
