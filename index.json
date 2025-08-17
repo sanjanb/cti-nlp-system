@@ -1,0 +1,164 @@
+<!-- dashboard/templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CTI-NLP Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <img src="Images/WhatsApp Image 2025-08-05 at 20.03.42_30403caa.jpg" height="700px" width="1512.5.5px">
+    <style>
+      body {
+        background-color: #000b5c;
+      }
+      .card {
+        margin-top: 20px;
+      }
+      #loader {
+        display: none;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container py-5">
+      <h2 class="text-center mb-4" style="color:whitesmoke;">Cyber Threat Detection Using AI & NLP</h2>
+
+      <div class="mb-4">
+        <textarea
+          style="color: rgb(0, 0, 0);"
+          id="inputText"
+          class="form-control"
+          rows="6"
+          placeholder="Paste threat intelligence report or suspicious text here..."
+        ></textarea>
+      </div>
+
+      <div class="d-grid gap-2 col-6 mx-auto">
+        <button class="btn btn-primary" onclick="analyzeText()">
+          Analyze Threat
+        </button>
+      </div>
+
+      <div class="text-center my-3">
+        <div class="spinner-border text-primary" role="status" id="loader">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div id="results" class="mt-4" style="display: none">
+        <h4>Analysis Results</h4>
+
+        <div class="card">
+          <div class="card-header">Threat Type</div>
+          <div class="card-body"><p id="threatType"></p></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Severity</div>
+          <div class="card-body"><p id="severity"></p></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">Entities (NER)</div>
+          <div class="card-body">
+            <pre id="entities"></pre>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button
+            class="btn btn-outline-secondary me-2"
+            onclick="copyResults()"
+          >
+            Copy
+          </button>
+          <button class="btn btn-outline-success" onclick="downloadResults()">
+            ⬇Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function analyzeText() {
+        const inputText = document.getElementById("inputText").value;
+        if (!inputText.trim()) {
+          alert("Please enter some text to analyze.");
+          return;
+        }
+
+        document.getElementById("loader").style.display = "block";
+        document.getElementById("results").style.display = "none";
+
+        fetch("/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: inputText }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("loader").style.display = "none";
+
+            if (data.error) {
+              alert("Error: " + data.error);
+              return;
+            }
+
+            document.getElementById("threatType").innerText =
+              data.threat_type || "N/A";
+            document.getElementById("severity").innerText =
+              data.severity || "N/A";
+            document.getElementById("entities").innerText = JSON.stringify(
+              data.entities,
+              null,
+              2
+            );
+
+            document.getElementById("results").style.display = "block";
+          })
+          .catch((err) => {
+            document.getElementById("loader").style.display = "none";
+            alert("Request failed. Check server.");
+            console.error(err);
+          });
+      }
+
+      function copyResults() {
+        const resultsText = `
+Threat Type: ${document.getElementById("threatType").innerText}
+Severity: ${document.getElementById("severity").innerText}
+Entities: ${document.getElementById("entities").innerText}
+      `.trim();
+
+        navigator.clipboard.writeText(resultsText);
+        alert("Results copied to clipboard.");
+      }
+
+      function downloadResults() {
+        const resultObj = {
+          threat_type: document.getElementById("threatType").innerText,
+          severity: document.getElementById("severity").innerText,
+          entities: JSON.parse(document.getElementById("entities").innerText),
+        };
+
+        const blob = new Blob([JSON.stringify(resultObj, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "threat_analysis_result.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    </script>
+  </body>
+</html>
