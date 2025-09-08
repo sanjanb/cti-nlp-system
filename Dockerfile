@@ -32,11 +32,6 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p data models logs
 
-# Create non-root user for security
-RUN useradd --create-home --shell /bin/bash app && \
-    chown -R app:app /app
-USER app
-
 # Expose port
 EXPOSE 8000
 
