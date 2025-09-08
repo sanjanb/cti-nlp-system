@@ -1,7 +1,7 @@
 services:
   # Main Application
   app:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: cti-app
