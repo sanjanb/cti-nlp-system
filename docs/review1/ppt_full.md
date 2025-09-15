@@ -94,10 +94,12 @@ _See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.m
   - **Selected:** DistilBERT (HuggingFace Transformers)
   - **Why:** Best entity-level F1, strong generalization, easy integration
 
+
 ### Model Selection Process
 
 - All models evaluated using 5-fold cross-validation
 - Metrics: Accuracy, F1-score, confusion matrix, training time
+- Hyperparameters for each model were optimized using grid search over a predefined parameter space
 - Ensemble and hybrid approaches tested for threat classification
 
 ### Comparative Results Table (Sample)
