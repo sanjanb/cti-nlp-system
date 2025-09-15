@@ -20,8 +20,8 @@ xgboost>=1.7.0
 # Imbalanced learning
 imbalanced-learn>=0.10.0
 
-# Text embeddings
-sentence-transformers>=2.2.0
+# Text embeddings - commented out to avoid conflicts
+# sentence-transformers>=2.2.0
 
 # Model persistence
 joblib>=1.2.0

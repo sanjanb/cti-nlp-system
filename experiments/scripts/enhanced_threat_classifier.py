@@ -19,6 +19,7 @@ from sklearn.svm import SVC
 from xgboost import XGBClassifier
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
 from sklearn.utils.class_weight import compute_class_weight
+from sklearn.preprocessing import LabelEncoder
 from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.combine import SMOTETomek
@@ -28,7 +29,7 @@ import re
 from collections import Counter
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sentence_transformers import SentenceTransformer
+# Removed sentence_transformers import to avoid dependency conflicts
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -37,7 +38,7 @@ class EnhancedThreatClassifier:
         self.data_path = data_path
         self.models = {}
         self.vectorizers = {}
-        self.label_encoder = None
+        self.label_encoder = LabelEncoder()
         self.threat_keywords = [
             'malware', 'virus', 'trojan', 'ransomware', 'phishing', 'ddos', 'botnet',
             'exploit', 'vulnerability', 'breach', 'attack', 'hack', 'intrusion',
@@ -272,9 +273,11 @@ class EnhancedThreatClassifier:
         print("Performing error analysis...")
         
         y_pred = model.predict(X_test)
+        # Convert predictions back to original labels for analysis
+        y_pred_labels = self.label_encoder.inverse_transform(y_pred)
         
         # Confusion matrix
-        cm = confusion_matrix(y_test, y_pred)
+        cm = confusion_matrix(y_test, y_pred_labels)
         
         plt.figure(figsize=(10, 8))
         sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
@@ -287,10 +290,10 @@ class EnhancedThreatClassifier:
         plt.show()
         
         # Classification report
-        report = classification_report(y_test, y_pred, target_names=class_names, output_dict=True)
+        report = classification_report(y_test, y_pred_labels, target_names=class_names, output_dict=True)
         
         # Identify most confused classes
-        misclassified_indices = np.where(y_test != y_pred)[0]
+        misclassified_indices = np.where(y_test != y_pred_labels)[0]
         
         print(f"Total misclassified samples: {len(misclassified_indices)}")
         
@@ -299,8 +302,8 @@ class EnhancedThreatClassifier:
             for i in misclassified_indices[:5]:
                 print(f"\nMisclassified example {i}:")
                 print(f"Text: {X_test.iloc[i][:100]}...")
-                print(f"True label: {y_test.iloc[i]}")
-                print(f"Predicted label: {y_pred[i]}")
+                print(f"True label: {y_test.iloc[i] if hasattr(y_test, 'iloc') else y_test[i]}")
+                print(f"Predicted label: {y_pred_labels[i]}")
         
         return report
     
@@ -324,6 +327,10 @@ class EnhancedThreatClassifier:
             X, y, test_size=0.2, random_state=42, stratify=y
         )
         
+        # Encode labels for models that need numeric labels (like XGBoost)
+        y_train_encoded = self.label_encoder.fit_transform(y_train)
+        y_test_encoded = self.label_encoder.transform(y_test)
+        
         # Feature extraction
         # 1. TF-IDF features
         tfidf_vectorizer = TfidfVectorizer(max_features=5000, ngram_range=(1, 2))
@@ -342,19 +349,19 @@ class EnhancedThreatClassifier:
         # Handle class imbalance
         if balance_method != 'none':
             X_train_balanced, y_train_balanced = self.handle_class_imbalance(
-                X_train_combined, y_train, balance_method
+                X_train_combined, y_train_encoded, balance_method
             )
         else:
-            X_train_balanced, y_train_balanced = X_train_combined, y_train
+            X_train_balanced, y_train_balanced = X_train_combined, y_train_encoded
         
         # Create models
         models = self.create_ensemble_models()
         
         # Calculate class weights for models that support it
         class_weights = compute_class_weight(
-            'balanced', classes=np.unique(y_train), y=y_train
+            'balanced', classes=np.unique(y_train_encoded), y=y_train_encoded
         )
-        class_weight_dict = dict(zip(np.unique(y_train), class_weights))
+        class_weight_dict = dict(zip(np.unique(y_train_encoded), class_weights))
         
         # Train and optimize models
         best_models = {}
@@ -385,7 +392,9 @@ class EnhancedThreatClassifier:
             
             # Test evaluation
             y_pred = best_models[name].predict(X_test_combined)
-            test_f1 = f1_score(y_test, y_pred, average='weighted')
+            # Convert predictions back to original labels for F1 calculation
+            y_pred_labels = self.label_encoder.inverse_transform(y_pred)
+            test_f1 = f1_score(y_test, y_pred_labels, average='weighted')
             
             results[name] = {
                 'cv_mean': np.mean(cv_scores),
@@ -403,7 +412,8 @@ class EnhancedThreatClassifier:
         
         # Evaluate ensemble
         y_pred_ensemble = ensemble.predict(X_test_combined)
-        ensemble_f1 = f1_score(y_test, y_pred_ensemble, average='weighted')
+        y_pred_ensemble_labels = self.label_encoder.inverse_transform(y_pred_ensemble)
+        ensemble_f1 = f1_score(y_test, y_pred_ensemble_labels, average='weighted')
         
         print(f"Ensemble Test F1: {ensemble_f1:.4f}")
         
@@ -417,11 +427,11 @@ class EnhancedThreatClassifier:
         )
         
         # Save models and results
-        self.save_models(best_models, ensemble, tfidf_vectorizer, results)
+        self.save_models(best_models, ensemble, tfidf_vectorizer, results, self.label_encoder)
         
         return best_models, ensemble, results
     
-    def save_models(self, models, ensemble, vectorizer, results):
+    def save_models(self, models, ensemble, vectorizer, results, label_encoder):
         """Save all models and results"""
         print("Saving models and results...")
         
@@ -434,8 +444,9 @@ class EnhancedThreatClassifier:
         # Save ensemble
         joblib.dump(ensemble, '../models/enhanced_ensemble_model.pkl')
         
-        # Save vectorizer
+        # Save vectorizer and label encoder
         joblib.dump(vectorizer, '../models/enhanced_tfidf_vectorizer.pkl')
+        joblib.dump(label_encoder, '../models/enhanced_label_encoder.pkl')
         
         # Save results
         results_df = pd.DataFrame(results).T
