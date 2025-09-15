@@ -4,6 +4,8 @@
 
 ## Slide 1: Title & Motivation
 
+_See: [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for foundational concepts and motivation._
+
 - **Project:** Cyber Threat Intelligence NLP System
 - **Goal:** Automate extraction and classification of cyber threats from unstructured text
 - **Motivation:**
@@ -15,12 +17,16 @@
 
 ## Slide 2: Problem Statement
 
+_See: [docs/1. SCRIPTS_OVERVIEW.md](../../1. SCRIPTS_OVERVIEW.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for project scope and CTI context._
+
 - Extract actionable threat intelligence from noisy, real-world text (tweets, forums, reports)
 - Classify threat type, predict severity, and extract key entities
 
 ---
 
 ## Slide 3: Data Collection & Sources
+
+_See: [docs/98. DATASET.md](../../98. DATASET.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for data sources and collection details._
 
 - **Sources:**
   - Twitter (live and historical)
@@ -34,6 +40,8 @@
 
 ## Slide 4: Data Exploration & Insights
 
+_See: [docs/98. DATASET.md](../../98. DATASET.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for data analysis and statistics._
+
 - **Threat Category Distribution:**
   - ![Threat Category Distribution](../../assets/review1/threat_category_distribution.png)
 - **Severity Score Distribution:**
@@ -46,6 +54,8 @@
 
 ## Slide 5: Preprocessing Pipeline
 
+_See: [docs/98. DATASET.md](../../98. DATASET.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for preprocessing steps and rationale._
+
 - Cleaning: remove noise, standardize text
 - Tokenization: spaCy, NLTK
 - Label encoding for classification/NER
@@ -56,6 +66,8 @@
 
 ## Slide 6: Feature Engineering
 
+_See: [docs/98. DATASET.md](../../98. DATASET.md), [docs/4. NER_MODEL.md](../../4. NER_MODEL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for feature engineering details._
+
 - TF-IDF for classical models
 - Word embeddings (spaCy, transformers) for deep models
 - Custom features: threat keywords, n-grams, CVE presence
@@ -65,6 +77,8 @@
 
 ## Slide 7: Model Selection & Experiments
 
+_See: [docs/2. THREAT_CLASSIFIER.md](../../2. THREAT_CLASSIFIER.md), [docs/3. SEVERITY_MODEL.md](../../3. SEVERITY_MODEL.md), [docs/4. NER_MODEL.md](../../4. NER_MODEL.md), [docs/7. THREAT_CLASSIFIER_LOGISTIC.md](../../7. THREAT_CLASSIFIER_LOGISTIC.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for model selection and experiments._
+
 - Tried: Logistic Regression, SVM, Random Forest, XGBoost, LSTM, BERT, DistilBERT
 - Ensemble for best results
 - Hyperparameter tuning, cross-validation
@@ -73,6 +87,8 @@
 ---
 
 ## Slide 8: Metrics & Visualizations
+
+_See: [docs/2. THREAT_CLASSIFIER.md](../../2. THREAT_CLASSIFIER.md), [docs/3. SEVERITY_MODEL.md](../../3. SEVERITY_MODEL.md), [docs/4. NER_MODEL.md](../../4. NER_MODEL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for metrics and evaluation._
 
 - **Threat Classifier:**
   - ![F1-score by class](../../assets/review1/threat_classifier_f1.png)
@@ -86,6 +102,8 @@
 
 ## Slide 9: Error Analysis & Lessons Learned
 
+_See: [docs/99. TEST_GUIDE.md](../../99. TEST_GUIDE.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for error analysis and lessons._
+
 - Where do models struggle? (e.g., rare classes, ambiguous text)
 - How did we address: class imbalance, noisy data
 - **Proof:** Example misclassified samples (add if available)
@@ -93,6 +111,8 @@
 ---
 
 ## Slide 10: Final Model Justification
+
+_See: [docs/2. THREAT_CLASSIFIER.md](../../2. THREAT_CLASSIFIER.md), [docs/3. SEVERITY_MODEL.md](../../3. SEVERITY_MODEL.md), [docs/4. NER_MODEL.md](../../4. NER_MODEL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for justification and rationale._
 
 - **Threat Classification:** Ensemble (LogReg + XGBoost)
 - **Severity:** XGBoost with custom features
@@ -102,6 +122,8 @@
 ---
 
 ## Slide 11: Deployment & Real-World Use
+
+_See: [docs/5. BACKEND_OVERVIEW.md](../../5. BACKEND_OVERVIEW.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for deployment and API details._
 
 - REST API (FastAPI backend)
 - Dockerized for easy deployment
@@ -114,12 +136,16 @@
 
 ## Slide 12: Challenges & Future Work
 
+_See: [docs/96. PLAN-2.md](../../96. PLAN-2.md), [docs/97. PLAN-MVP.md](../../97. PLAN-MVP.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for challenges and roadmap._
+
 - Data quality, class imbalance, real-time ingestion
 - Next: more data, advanced models, dashboard, integration
 
 ---
 
 ## Slide 13: References & Acknowledgements
+
+_See: [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for further reading and resources._
 
 - Datasets: MITRE, Twitter, public CTI
 - Libraries: scikit-learn, transformers, spaCy, FastAPI
