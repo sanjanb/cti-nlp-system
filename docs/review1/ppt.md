@@ -2,6 +2,21 @@
 
 ---
 
+## Slide 0: Foundational Concepts
+
+- **Supervised Learning:**
+  - We use labeled data to train models to predict threat categories, severity, and named entities.
+- **Classification Metrics:**
+  - Accuracy, Precision, Recall, F1-score: These help us judge how well our models distinguish between threat types and severities.
+- **NLP Pipeline:**
+  - Data cleaning → Tokenization → Feature extraction (TF-IDF, embeddings) → Model training → Evaluation
+- **Why These Matter for CTI:**
+  - Cybersecurity text is noisy and imbalanced; robust metrics and preprocessing are essential for reliable automation.
+
+---
+
+---
+
 ## Slide 1: Title
 
 - **Project:** Cyber Threat Intelligence NLP System
