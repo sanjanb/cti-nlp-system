@@ -79,10 +79,78 @@ _See: [../04-development/DATASET.md](../04-development/DATASET.md), [../02-archi
 
 _See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md](../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md), [../03-models/6. WHY_ENSEMBLE.md](../03-models/6. WHY_ENSEMBLE.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for model selection and experiments._
 
-- Tried: Logistic Regression, SVM, Random Forest, XGBoost, LSTM, BERT, DistilBERT
-- Ensemble for best results
-- Hyperparameter tuning, cross-validation
-- **Proof:** Table of model scores (add if available)
+### Models Considered & Selection Rationale
+
+- **Threat Classification:**
+  - Tried: Logistic Regression, SVM, Random Forest, XGBoost, LSTM, BERT, DistilBERT
+  - **Selected:** Ensemble (Logistic Regression + XGBoost)
+  - **Why:** Best F1-score, robust to class imbalance, interpretable, fast for real-time use
+- **Severity Prediction:**
+  - Tried: Random Forest, XGBoost, SVM, BERT
+  - **Selected:** XGBoost with custom features
+  - **Why:** Best accuracy and F1, handles non-linear relationships, interpretable feature importances
+- **NER:**
+  - Tried: spaCy, BERT, DistilBERT, Regex
+  - **Selected:** DistilBERT (HuggingFace Transformers)
+  - **Why:** Best entity-level F1, strong generalization, easy integration
+
+### Model Selection Process
+
+- All models evaluated using 5-fold cross-validation
+- Metrics: Accuracy, F1-score, confusion matrix, training time
+- Ensemble and hybrid approaches tested for threat classification
+
+### Comparative Results Table (Sample)
+
+| Task                  | Model                  | Accuracy | F1-score | Training Time |
+| --------------------- | ---------------------- | -------- | -------- | ------------- |
+| Threat Classification | Logistic Regression    | 0.24     | 0.20     | 0.02s         |
+| Threat Classification | XGBoost                | 0.25     | 0.21     | 0.10s         |
+| Threat Classification | **Ensemble (Final)**   | **0.27** | **0.23** | 0.12s         |
+| Severity Prediction   | Random Forest          | 0.36     | 0.28     | 0.05s         |
+| Severity Prediction   | **XGBoost (Final)**    | **0.40** | **0.29** | 0.07s         |
+| NER                   | spaCy                  | 0.78     | 0.75     | 0.20s         |
+| NER                   | **DistilBERT (Final)** | **0.82** | **0.80** | 0.30s         |
+
+### Model Strengths & Limitations
+
+- **Logistic Regression:** Fast, interpretable, but limited for non-linear patterns
+- **XGBoost:** High accuracy, handles feature interactions, but slower than linear models
+- **DistilBERT:** High F1 for NER, robust, but requires more compute
+
+---
+
+## Slide 7a: Proof of Concept (POC) – Model Output Example
+
+_See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md)_
+
+**Input:**
+
+> "Emotet malware is targeting Microsoft Outlook users across Europe."
+
+**Model Outputs:**
+
+- **Threat Type:** Malware
+- **Severity:** High
+- **Entities:**
+  - Emotet (MISC)
+  - Microsoft (ORG)
+  - Europe (LOC)
+
+**API JSON Output:**
+
+```json
+{
+  "original_text": "Emotet malware is targeting Microsoft Outlook users across Europe.",
+  "entities": [
+    { "entity_group": "MISC", "word": "Emotet", "score": 0.96 },
+    { "entity_group": "ORG", "word": "Microsoft", "score": 0.99 },
+    { "entity_group": "LOC", "word": "Europe", "score": 0.98 }
+  ],
+  "threat_type": "Malware",
+  "severity": "High"
+}
+```
 
 ---
 
