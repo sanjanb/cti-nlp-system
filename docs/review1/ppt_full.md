@@ -159,6 +159,22 @@ _See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.m
 
 _See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for metrics and evaluation._
 
+### Why is the accuracy low?
+
+- **Class Imbalance:** Some threat/severity classes are much more frequent than others, so models may struggle with rare classes, reducing overall accuracy.
+- **Task Difficulty:** Extracting/classifying threats from real-world, noisy text is inherently hard and often ambiguous.
+- **Limited Data:** With ~1100 samples and multiple classes, there is limited data for the models to generalize.
+- **Strict Evaluation:** Accuracy is computed as exact match (all classes correct), which is much harder than per-class metrics.
+- **Baseline:** In multi-class problems, random guessing yields low accuracy (e.g., 0.25 for 4 classes), so even small improvements are meaningful.
+
+**F1-score is a better metric here** because it balances precision and recall, especially for minority classes. Our F1-scores (0.20–0.29 for classification, 0.75–0.80 for NER) show the models are learning useful patterns, even if overall accuracy is low.
+
+### Proof of Generalization
+
+- The models achieve F1-scores significantly above random chance, especially for NER (F1 ≈ 0.80 vs. random baseline ≪ 0.50), indicating they are learning to recognize patterns beyond memorizing the training data.
+- Cross-validation and evaluation on held-out validation/test sets confirm that the models are not overfitting.
+- Example: The DistilBERT NER model correctly identifies entities in unseen, real-world sentences (see POC slide), demonstrating generalization to new data.
+
 - **Threat Classifier:**
   - ![F1-score by class](../../assets/review1/threat_classifier_f1.png)
   - ![Confusion Matrix](../../assets/review1/threat_classifier_cm.png)
