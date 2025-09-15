@@ -1,5 +1,28 @@
 # Project Review 1: Model Selection & Metrics (PPT Script)
 
+## Slide 0A: Dataset Insights & Visualizations
+
+- **Why Data Understanding Matters:**
+
+  - Knowing our data's structure and balance helps us choose the right models and avoid bias.
+
+- **Threat Category Distribution:**
+
+  - ![Threat Category Distribution](../../assets/review1/threat_category_distribution.png)
+
+- **Severity Score Distribution:**
+
+  - ![Severity Score Distribution](../../assets/review1/severity_score_distribution.png)
+
+- **Threat Description Length Distribution:**
+
+  - ![Text Length Distribution](../../assets/review1/text_length_distribution.png)
+
+- **Supporting Metrics:**
+  - Number of unique threat categories: 4
+  - Total samples: 1100
+  - Average text length: 42.7
+
 ---
 
 ## Slide 0: Foundational Concepts
