@@ -4,7 +4,7 @@
 
 ## Slide 1: Title & Motivation
 
-_See: [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md), [docs/README.md](../../README.md), [docs/PROJECT_OVERVIEW.md](../../PROJECT_OVERVIEW.md) for foundational concepts, project summary, and motivation._
+_See: [ppt_foundations_expert.md](ppt_foundations_expert.md), [../README.md](../README.md), [../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md) for foundational concepts, project summary, and motivation._
 
 - **Project:** Cyber Threat Intelligence NLP System
 - **Goal:** Automate extraction and classification of cyber threats from unstructured text
@@ -17,7 +17,7 @@ _See: [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md), [docs
 
 ## Slide 2: Problem Statement
 
-_See: [docs/02-architecture/1. SCRIPTS_OVERVIEW.md](../../02-architecture/1.%20SCRIPTS_OVERVIEW.md), [docs/PROJECT_OVERVIEW.md](../../PROJECT_OVERVIEW.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for project scope and CTI context._
+_See: [../02-architecture/1. SCRIPTS_OVERVIEW.md](../02-architecture/1. SCRIPTS_OVERVIEW.md), [../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for project scope and CTI context._
 
 - Extract actionable threat intelligence from noisy, real-world text (tweets, forums, reports)
 - Classify threat type, predict severity, and extract key entities
@@ -26,7 +26,7 @@ _See: [docs/02-architecture/1. SCRIPTS_OVERVIEW.md](../../02-architecture/1.%20S
 
 ## Slide 3: Data Collection & Sources
 
-_See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/01-getting-started/USER_MANUAL.md](../../01-getting-started/USER_MANUAL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for data sources and collection details._
+_See: [../04-development/DATASET.md](../04-development/DATASET.md), [../01-getting-started/USER_MANUAL.md](../01-getting-started/USER_MANUAL.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for data sources and collection details._
 
 - **Sources:**
   - Twitter (live and historical)
@@ -40,7 +40,7 @@ _See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/0
 
 ## Slide 4: Data Exploration & Insights
 
-_See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/03-models/MODEL_ENHANCEMENT_REPORT.md](../../03-models/MODEL_ENHANCEMENT_REPORT.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for data analysis and statistics._
+_See: [../04-development/DATASET.md](../04-development/DATASET.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for data analysis and statistics._
 
 - **Threat Category Distribution:**
   - ![Threat Category Distribution](../../assets/review1/threat_category_distribution.png)
@@ -54,7 +54,7 @@ _See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/0
 
 ## Slide 5: Preprocessing Pipeline
 
-_See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/02-architecture/1. SCRIPTS_OVERVIEW.md](../../02-architecture/1.%20SCRIPTS_OVERVIEW.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for preprocessing steps and rationale._
+_See: [../04-development/DATASET.md](../04-development/DATASET.md), [../02-architecture/1. SCRIPTS_OVERVIEW.md](../02-architecture/1. SCRIPTS_OVERVIEW.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for preprocessing steps and rationale._
 
 - Cleaning: remove noise, standardize text
 - Tokenization: spaCy, NLTK
@@ -66,7 +66,7 @@ _See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/0
 
 ## Slide 6: Feature Engineering
 
-_See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/02-architecture/AI-ML-ARCHITECTURE.md](../../02-architecture/AI-ML-ARCHITECTURE.md), [docs/03-models/4. NER_MODEL.md](../../03-models/4.%20NER_MODEL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for feature engineering details._
+_See: [../04-development/DATASET.md](../04-development/DATASET.md), [../02-architecture/AI-ML-ARCHITECTURE.md](../02-architecture/AI-ML-ARCHITECTURE.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for feature engineering details._
 
 - TF-IDF for classical models
 - Word embeddings (spaCy, transformers) for deep models
@@ -77,7 +77,7 @@ _See: [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/0
 
 ## Slide 7: Model Selection & Experiments
 
-_See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASSIFIER.md), [docs/03-models/3. SEVERITY_MODEL.md](../../03-models/3.%20SEVERITY_MODEL.md), [docs/03-models/4. NER_MODEL.md](../../03-models/4.%20NER_MODEL.md), [docs/03-models/7. THREAT_CLASSIFIER_LOGISTIC.md](../../03-models/7.%20THREAT_CLASSIFIER_LOGISTIC.md), [docs/03-models/6. WHY_ENSEMBLE.md](../../03-models/6.%20WHY_ENSEMBLE.md), [docs/07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [docs/07-research/GUIDE_PRESENTATION_SUMMARY.md](../../07-research/GUIDE_PRESENTATION_SUMMARY.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for model selection and experiments._
+_See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md](../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md), [../03-models/6. WHY_ENSEMBLE.md](../03-models/6. WHY_ENSEMBLE.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for model selection and experiments._
 
 - Tried: Logistic Regression, SVM, Random Forest, XGBoost, LSTM, BERT, DistilBERT
 - Ensemble for best results
@@ -88,7 +88,7 @@ _See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASS
 
 ## Slide 8: Metrics & Visualizations
 
-_See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASSIFIER.md), [docs/03-models/3. SEVERITY_MODEL.md](../../03-models/3.%20SEVERITY_MODEL.md), [docs/03-models/4. NER_MODEL.md](../../03-models/4.%20NER_MODEL.md), [docs/03-models/MODEL_ENHANCEMENT_REPORT.md](../../03-models/MODEL_ENHANCEMENT_REPORT.md), [docs/07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [docs/07-research/GUIDE_PRESENTATION_SUMMARY.md](../../07-research/GUIDE_PRESENTATION_SUMMARY.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for metrics and evaluation._
+_See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for metrics and evaluation._
 
 - **Threat Classifier:**
   - ![F1-score by class](../../assets/review1/threat_classifier_f1.png)
@@ -102,7 +102,7 @@ _See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASS
 
 ## Slide 9: Error Analysis & Lessons Learned
 
-_See: [docs/06-testing/TEST_GUIDE.md](../../06-testing/TEST_GUIDE.md), [docs/06-testing/TESTING.md](../../06-testing/TESTING.md), [docs/03-models/MODEL_ENHANCEMENT_REPORT.md](../../03-models/MODEL_ENHANCEMENT_REPORT.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for error analysis and lessons._
+_See: [../06-testing/TEST_GUIDE.md](../06-testing/TEST_GUIDE.md), [../06-testing/TESTING.md](../06-testing/TESTING.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for error analysis and lessons._
 
 - Where do models struggle? (e.g., rare classes, ambiguous text)
 - How did we address: class imbalance, noisy data
@@ -112,7 +112,7 @@ _See: [docs/06-testing/TEST_GUIDE.md](../../06-testing/TEST_GUIDE.md), [docs/06-
 
 ## Slide 10: Final Model Justification
 
-_See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASSIFIER.md), [docs/03-models/3. SEVERITY_MODEL.md](../../03-models/3.%20SEVERITY_MODEL.md), [docs/03-models/4. NER_MODEL.md](../../03-models/4.%20NER_MODEL.md), [docs/03-models/6. WHY_ENSEMBLE.md](../../03-models/6.%20WHY_ENSEMBLE.md), [docs/07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [docs/07-research/GUIDE_PRESENTATION_SUMMARY.md](../../07-research/GUIDE_PRESENTATION_SUMMARY.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for justification and rationale._
+_See: [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/6. WHY_ENSEMBLE.md](../03-models/6. WHY_ENSEMBLE.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for justification and rationale._
 
 - **Threat Classification:** Ensemble (LogReg + XGBoost)
 - **Severity:** XGBoost with custom features
@@ -123,7 +123,7 @@ _See: [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASS
 
 ## Slide 11: Deployment & Real-World Use
 
-_See: [docs/02-architecture/5. BACKEND_OVERVIEW.md](../../02-architecture/5.%20BACKEND_OVERVIEW.md), [docs/05-deployment/DEPLOYMENT.md](../../05-deployment/DEPLOYMENT.md), [docs/01-getting-started/USER_MANUAL.md](../../01-getting-started/USER_MANUAL.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for deployment and API details._
+_See: [../02-architecture/5. BACKEND_OVERVIEW.md](../02-architecture/5. BACKEND_OVERVIEW.md), [../05-deployment/DEPLOYMENT.md](../05-deployment/DEPLOYMENT.md), [../01-getting-started/USER_MANUAL.md](../01-getting-started/USER_MANUAL.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for deployment and API details._
 
 - REST API (FastAPI backend)
 - Dockerized for easy deployment
@@ -136,7 +136,7 @@ _See: [docs/02-architecture/5. BACKEND_OVERVIEW.md](../../02-architecture/5.%20B
 
 ## Slide 12: Challenges & Future Work
 
-_See: [docs/08-planning/96. PLAN-2.md](../../08-planning/96.%20PLAN-2.md), [docs/08-planning/97. PLAN-MVP.md](../../08-planning/97.%20PLAN-MVP.md), [docs/03-models/MODEL_ENHANCEMENT_REPORT.md](../../03-models/MODEL_ENHANCEMENT_REPORT.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for challenges and roadmap._
+_See: [../08-planning/96. PLAN-2.md](../08-planning/96. PLAN-2.md), [../08-planning/97. PLAN-MVP.md](../08-planning/97. PLAN-MVP.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for challenges and roadmap._
 
 - Data quality, class imbalance, real-time ingestion
 - Next: more data, advanced models, dashboard, integration
@@ -145,7 +145,7 @@ _See: [docs/08-planning/96. PLAN-2.md](../../08-planning/96.%20PLAN-2.md), [docs
 
 ## Slide 13: References & Acknowledgements
 
-_See: [docs/README.md](../../README.md), [docs/PROJECT_OVERVIEW.md](../../PROJECT_OVERVIEW.md), [docs/01-getting-started/USER_MANUAL.md](../../01-getting-started/USER_MANUAL.md), [docs/05-deployment/DEPLOYMENT.md](../../05-deployment/DEPLOYMENT.md), [docs/03-models/2. THREAT_CLASSIFIER.md](../../03-models/2.%20THREAT_CLASSIFIER.md), [docs/03-models/3. SEVERITY_MODEL.md](../../03-models/3.%20SEVERITY_MODEL.md), [docs/03-models/4. NER_MODEL.md](../../03-models/4.%20NER_MODEL.md), [docs/03-models/6. WHY_ENSEMBLE.md](../../03-models/6.%20WHY_ENSEMBLE.md), [docs/03-models/7. THREAT_CLASSIFIER_LOGISTIC.md](../../03-models/7.%20THREAT_CLASSIFIER_LOGISTIC.md), [docs/03-models/MODEL_ENHANCEMENT_REPORT.md](../../03-models/MODEL_ENHANCEMENT_REPORT.md), [docs/04-development/DATASET.md](../../04-development/DATASET.md), [docs/06-testing/TEST_GUIDE.md](../../06-testing/TEST_GUIDE.md), [docs/06-testing/TESTING.md](../../06-testing/TESTING.md), [docs/07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [docs/07-research/GUIDE_PRESENTATION_SUMMARY.md](../../07-research/GUIDE_PRESENTATION_SUMMARY.md), [docs/08-planning/96. PLAN-2.md](../../08-planning/96.%20PLAN-2.md), [docs/08-planning/97. PLAN-MVP.md](../../08-planning/97.%20PLAN-MVP.md), [docs/review1/ppt_foundations_expert.md](ppt_foundations_expert.md) for further reading and resources._
+_See: [../README.md](../README.md), [../PROJECT_OVERVIEW.md](../PROJECT_OVERVIEW.md), [../01-getting-started/USER_MANUAL.md](../01-getting-started/USER_MANUAL.md), [../05-deployment/DEPLOYMENT.md](../05-deployment/DEPLOYMENT.md), [../03-models/2. THREAT_CLASSIFIER.md](../03-models/2. THREAT_CLASSIFIER.md), [../03-models/3. SEVERITY_MODEL.md](../03-models/3. SEVERITY_MODEL.md), [../03-models/4. NER_MODEL.md](../03-models/4. NER_MODEL.md), [../03-models/6. WHY_ENSEMBLE.md](../03-models/6. WHY_ENSEMBLE.md), [../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md](../03-models/7. THREAT_CLASSIFIER_LOGISTIC.md), [../03-models/MODEL_ENHANCEMENT_REPORT.md](../03-models/MODEL_ENHANCEMENT_REPORT.md), [../04-development/DATASET.md](../04-development/DATASET.md), [../06-testing/TEST_GUIDE.md](../06-testing/TEST_GUIDE.md), [../06-testing/TESTING.md](../06-testing/TESTING.md), [../07-research/ACADEMIC_JUSTIFICATION_REPORT.md](../07-research/ACADEMIC_JUSTIFICATION_REPORT.md), [../07-research/GUIDE_PRESENTATION_SUMMARY.md](../07-research/GUIDE_PRESENTATION_SUMMARY.md), [../08-planning/96. PLAN-2.md](../08-planning/96. PLAN-2.md), [../08-planning/97. PLAN-MVP.md](../08-planning/97. PLAN-MVP.md), [ppt_foundations_expert.md](ppt_foundations_expert.md) for further reading and resources._
 
 - Datasets: MITRE, Twitter, public CTI
 - Libraries: scikit-learn, transformers, spaCy, FastAPI
