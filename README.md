@@ -190,4 +190,4 @@ Developed as part of the final year project (CSE - AI & ML) at **ATME College of
 * **Vishnu S**
 * *Guided by Prof. Khateeja Ambreen*
 
-For questions or suggestions, open a GitHub issue or reach out on [LinkedIn](https://www.linkedin.com/in/sanjanb/).
+For questions or suggestions, open a GitHub issue or reach out on [LinkedIn](https://www.linkedin.com/in/sanjan-bm/).
