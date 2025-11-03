@@ -728,9 +728,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            category_results = []
-            async for doc in ThreatIntelligence.aggregate(category_pipeline):
-                category_results.append(doc)
+            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list(None)
             threats_by_category = {}
             for result in category_results:
                 category = result.get("_id")
@@ -743,9 +741,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            severity_results = []
-            async for doc in ThreatIntelligence.aggregate(severity_pipeline):
-                severity_results.append(doc)
+            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list(None)
             threats_by_severity = {}
             for result in severity_results:
                 severity = result.get("_id")
@@ -758,9 +754,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$source", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            source_results = []
-            async for doc in ThreatIntelligence.aggregate(source_pipeline):
-                source_results.append(doc)
+            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
             threats_by_source = {}
             for result in source_results:
                 source = result.get("_id")
