@@ -312,21 +312,21 @@ async def get_dashboard_stats():
             category_pipeline = [
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}}
             ]
-            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list()
+            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list(None)
             threats_by_category = {result["_id"]: result["count"] for result in category_results if result["_id"]}
             
             # Aggregate by severity
             severity_pipeline = [
                 {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}}
             ]
-            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list()
+            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list(None)
             threats_by_severity = {result["_id"]: result["count"] for result in severity_results if result["_id"]}
             
             # Aggregate by source
             source_pipeline = [
                 {"$group": {"_id": "$source", "count": {"$sum": 1}}}
             ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list()
+            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
             threats_by_source = {result["_id"]: result["count"] for result in source_results if result["_id"]}
             
             # Get recent threats
@@ -982,9 +982,7 @@ async def get_entities(limit: int = 50):
                 {"$sort": {"count": -1}},
                 {"$limit": limit}
             ]
-            entity_results = []
-            async for doc in ExtractedEntity.aggregate(entity_pipeline):
-                entity_results.append(doc)
+            entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
             
             entities = []
             for result in entity_results:
@@ -1012,9 +1010,7 @@ async def get_data_sources():
                 {"$group": {"_id": "$source", "count": {"$sum": 1}, "last_update": {"$max": "$timestamp"}}},
                 {"$sort": {"count": -1}}
             ]
-            source_results = []
-            async for doc in ThreatIntelligence.aggregate(source_pipeline):
-                source_results.append(doc)
+            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
             
             sources = []
             for result in source_results:
