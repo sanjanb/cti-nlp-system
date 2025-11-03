@@ -351,9 +351,7 @@ async def get_dashboard_stats():
                 {"$sort": {"count": -1}},
                 {"$limit": 10}
             ]
-            entity_results = []
-            async for doc in ExtractedEntity.aggregate(entity_pipeline):
-                entity_results.append(doc)
+            entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
             top_entities = [{"entity": result["_id"], "count": result["count"]} for result in entity_results]
             
             return DashboardStats(
@@ -777,9 +775,7 @@ async def get_analytics(days: int = 30):
                 },
                 {"$sort": {"_id": 1}}
             ]
-            timeline_results = []
-            async for doc in ThreatIntelligence.aggregate(timeline_pipeline):
-                timeline_results.append(doc)
+            timeline_results = await ThreatIntelligence.aggregate(timeline_pipeline).to_list(None)
             threats_timeline = [
                 {"date": result["_id"], "count": result["count"]}
                 for result in timeline_results
@@ -811,9 +807,7 @@ async def get_analytics(days: int = 30):
                     {"$sort": {"count": -1}},
                     {"$limit": 10}
                 ]
-                entity_results = []
-                async for doc in ExtractedEntity.aggregate(entity_pipeline):
-                    entity_results.append(doc)
+                entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
                 top_entities = [
                     {"entity": result["_id"], "count": result["count"]}
                     for result in entity_results
