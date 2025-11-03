@@ -676,7 +676,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list()
+            category_results = await ThreatIntelligence.get_motor_collection().aggregate(category_pipeline).to_list(None)
             threats_by_category = {}
             for result in category_results:
                 category = result.get("_id")
@@ -689,7 +689,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list()
+            severity_results = await ThreatIntelligence.get_motor_collection().aggregate(severity_pipeline).to_list(None)
             threats_by_severity = {}
             for result in severity_results:
                 severity = result.get("_id")
@@ -702,7 +702,7 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$source", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list()
+            source_results = await ThreatIntelligence.get_motor_collection().aggregate(source_pipeline).to_list(None)
             threats_by_source = {}
             for result in source_results:
                 source = result.get("_id")
@@ -725,7 +725,7 @@ async def get_analytics(days: int = 30):
                 },
                 {"$sort": {"_id": 1}}
             ]
-            timeline_results = await ThreatIntelligence.aggregate(timeline_pipeline).to_list()
+            timeline_results = await ThreatIntelligence.get_motor_collection().aggregate(timeline_pipeline).to_list(None)
             threats_timeline = [
                 {"date": result["_id"], "count": result["count"]}
                 for result in timeline_results
@@ -757,7 +757,7 @@ async def get_analytics(days: int = 30):
                     {"$sort": {"count": -1}},
                     {"$limit": 10}
                 ]
-                entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list()
+                entity_results = await ExtractedEntity.get_motor_collection().aggregate(entity_pipeline).to_list(None)
                 top_entities = [
                     {"entity": result["_id"], "count": result["count"]}
                     for result in entity_results
