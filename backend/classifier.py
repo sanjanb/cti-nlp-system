@@ -16,6 +16,15 @@ def classify_threat(text):
     try:
         X = tfidf_vectorizer.transform([text])
         prediction = classifier_model.predict(X)[0]
-        return prediction
+        probabilities = classifier_model.predict_proba(X)[0]
+        confidence = max(probabilities)
+        
+        return {
+            "category": prediction,
+            "confidence": float(confidence)
+        }
     except Exception as e:
-        return f"Classification Error: {str(e)}"
+        return {
+            "category": "Other",
+            "confidence": 0.0
+        }

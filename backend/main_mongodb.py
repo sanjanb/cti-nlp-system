@@ -189,7 +189,7 @@ async def get_feed(limit: int = 20):
     if USE_MONGODB:
         try:
             # Get from MongoDB
-            threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(limit).to_list()
+            threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(limit).to_list(None)
             return [
                 {
                     "id": str(threat.id),
@@ -330,7 +330,7 @@ async def get_dashboard_stats():
             threats_by_source = {result["_id"]: result["count"] for result in source_results if result["_id"]}
             
             # Get recent threats
-            recent_threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(10).to_list()
+            recent_threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(10).to_list(None)
             recent_threats_data = [
                 ThreatIntelResponse(
                     id=str(threat.id),
@@ -785,7 +785,7 @@ async def get_analytics(days: int = 30):
             recent_threats = await ThreatIntelligence.find(
                 ThreatIntelligence.timestamp >= start_date,
                 ThreatIntelligence.timestamp <= end_date
-            ).sort([("timestamp", -1)]).limit(10).to_list()
+            ).sort([("timestamp", -1)]).limit(10).to_list(None)
             
             recent_threats_data = []
             for threat in recent_threats:
@@ -873,7 +873,7 @@ async def get_threats(page: int = 1, limit: int = 20, category: str = None, seve
                 filter_query["source"] = source
             
             # Get threats with filters
-            threats = await ThreatIntelligence.find(filter_query).skip(skip).limit(limit).sort([("timestamp", -1)]).to_list()
+            threats = await ThreatIntelligence.find(filter_query).skip(skip).limit(limit).sort([("timestamp", -1)]).to_list(None)
             total_count = await ThreatIntelligence.find(filter_query).count()
             
             threats_data = []
@@ -922,7 +922,7 @@ async def get_threat_details(threat_id: str):
                 raise HTTPException(status_code=404, detail="Threat not found")
             
             # Get associated entities
-            entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list()
+            entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list(None)
             
             # Get analysis results
             analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list()

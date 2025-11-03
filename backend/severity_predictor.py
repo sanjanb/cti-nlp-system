@@ -11,6 +11,17 @@ def predict_severity(text):
     try:
         X = severity_vectorizer.transform([text])
         prediction = severity_model.predict(X)[0]
-        return prediction.item() if hasattr(prediction, "item") else prediction
+        probabilities = severity_model.predict_proba(X)[0]
+        confidence = max(probabilities)
+        
+        severity = prediction.item() if hasattr(prediction, "item") else prediction
+        
+        return {
+            "severity": severity,
+            "confidence": float(confidence)
+        }
     except Exception as e:
-        return f"Severity Prediction Error: {str(e)}"
+        return {
+            "severity": "Medium",
+            "confidence": 0.0
+        }
