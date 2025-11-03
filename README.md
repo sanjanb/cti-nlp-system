@@ -5,6 +5,7 @@
 A predictive Cyber Threat Intelligence (CTI) system that leverages **Natural Language Processing (NLP)** and **AI-based classification** to extract meaningful cyber threat indicators from unstructured text, categorize threat types, predict severity levels, and visualize insights through an interactive, modular web interface.
 
 
+[Paper](https://sanjanb.github.io/cti-nlp-paper/)
 
 ##  Table of Contents
 
