@@ -466,15 +466,32 @@ async def analyze_threat_text(request: ThreatAnalysisRequest):
         end_time = datetime.utcnow()
         processing_time_ms = (end_time - start_time).total_seconds() * 1000
         
+        # Initialize storage counters
+        threat_id = None
+        entities_stored = 0
+        analysis_results_stored = 0
+        
         # Store in MongoDB if available
         if USE_MONGODB:
             try:
+                # Map classification result to enum
+                try:
+                    threat_category = ThreatCategory(classification_result.get("category", "Other"))
+                except ValueError:
+                    threat_category = ThreatCategory.OTHER
+                
+                # Map severity result to enum
+                try:
+                    severity_level = SeverityLevel(severity_result.get("severity", "Medium"))
+                except ValueError:
+                    severity_level = SeverityLevel.MEDIUM
+                
                 threat_doc = ThreatIntelligence(
                     text=text,
                     source=source,
                     timestamp=start_time,
-                    threat_category=ThreatCategory(classification_result.get("category", "Other")),
-                    severity_level=SeverityLevel(severity_result.get("severity", "Medium")),
+                    threat_category=threat_category,
+                    severity_level=severity_level,
                     confidence_score=classification_result.get("confidence", 0.0),
                     processed=True,
                     processing_timestamp=end_time,
@@ -482,34 +499,67 @@ async def analyze_threat_text(request: ThreatAnalysisRequest):
                 )
                 
                 await threat_doc.insert()
+                threat_id = str(threat_doc.id)
                 
                 # Store entities if any
+                entities_stored = 0
                 if entities_result:
                     for entity in entities_result:
-                        entity_doc = ExtractedEntity(
-                            threat_id=str(threat_doc.id),
-                            entity_text=entity.get("text", ""),
-                            entity_type=entity.get("label", "MISC"),
-                            confidence_score=entity.get("confidence", 0.0),
-                            start_position=entity.get("start"),
-                            end_position=entity.get("end")
-                        )
-                        await entity_doc.insert()
+                        try:
+                            # Map entity type to enum
+                            entity_type = entity.get("label", "MISC")
+                            if entity_type not in ["PERSON", "ORG", "LOC", "MISC"]:
+                                entity_type = "MISC"
+                            
+                            entity_doc = ExtractedEntity(
+                                threat_id=threat_id,
+                                entity_text=entity.get("text", ""),
+                                entity_type=entity_type,
+                                confidence_score=entity.get("confidence", 0.0),
+                                start_position=entity.get("start"),
+                                end_position=entity.get("end")
+                            )
+                            await entity_doc.insert()
+                            entities_stored += 1
+                        except Exception as e:
+                            logger.error(f"Failed to store entity: {e}")
                 
-                logger.info(f"Analysis stored in MongoDB with ID: {threat_doc.id}")
+                # Store detailed analysis results
+                analysis_results_stored = 0
+                for analysis_type, result_data in analysis_results.items():
+                    try:
+                        analysis_result = AnalysisResult(
+                            threat_id=threat_id,
+                            analysis_type=analysis_type,
+                            result=result_data,
+                            confidence=result_data.get("confidence", 0.0) if isinstance(result_data, dict) else 0.0,
+                            model_version="1.0",
+                            processing_time_ms=processing_time_ms,
+                            timestamp=end_time
+                        )
+                        await analysis_result.insert()
+                        analysis_results_stored += 1
+                    except Exception as e:
+                        logger.error(f"Failed to store analysis result for {analysis_type}: {e}")
+                
+                logger.info(f"Analysis stored in MongoDB - Threat: {threat_id}, Entities: {entities_stored}, Analysis: {analysis_results_stored}")
                 
             except Exception as e:
                 logger.error(f"Failed to store analysis in MongoDB: {e}")
+                threat_id = None
         
         # Return comprehensive analysis
         return {
+            "threat_id": threat_id if USE_MONGODB else None,
             "threat_category": classification_result.get("category", "Other"),
             "severity_level": severity_result.get("severity", "Medium"),
             "confidence_score": classification_result.get("confidence", 0.0),
             "entities": entities_result,
             "analysis_details": analysis_results,
             "processing_time_ms": processing_time_ms,
-            "database_stored": USE_MONGODB
+            "database_stored": USE_MONGODB,
+            "entities_stored": entities_stored if USE_MONGODB else 0,
+            "analysis_results_stored": analysis_results_stored if USE_MONGODB else 0
         }
         
     except Exception as e:
@@ -800,9 +850,263 @@ async def get_analytics(days: int = 30):
                 "database_mode": "file_based"
             }
             
-    except Exception as e:
-        logger.error(f"Failed to get analytics data: {e}")
+        except Exception as e:
+            logger.error(f"Failed to get analytics data: {e}")
         raise HTTPException(status_code=500, detail=f"Analytics failed: {str(e)}")
+
+# Additional API endpoints for dashboard sub-pages
+
+@app.get("/api/threats")
+async def get_threats(page: int = 1, limit: int = 20, category: str = None, severity: str = None, source: str = None):
+    """Get paginated list of threats with filtering"""
+    try:
+        skip = (page - 1) * limit
+        
+        if USE_MONGODB:
+            # Build filter query
+            filter_query = {}
+            if category:
+                filter_query["threat_category"] = category
+            if severity:
+                filter_query["severity_level"] = severity
+            if source:
+                filter_query["source"] = source
+            
+            # Get threats with filters
+            threats = await ThreatIntelligence.find(filter_query).skip(skip).limit(limit).sort([("timestamp", -1)]).to_list()
+            total_count = await ThreatIntelligence.find(filter_query).count()
+            
+            threats_data = []
+            for threat in threats:
+                threats_data.append({
+                    "id": str(threat.id),
+                    "text": threat.text,
+                    "source": str(threat.source),
+                    "timestamp": threat.timestamp.isoformat(),
+                    "threat_category": str(threat.threat_category) if threat.threat_category else None,
+                    "severity_level": str(threat.severity_level) if threat.severity_level else None,
+                    "confidence_score": threat.confidence_score,
+                    "processed": threat.processed
+                })
+            
+            return {
+                "threats": threats_data,
+                "total": total_count,
+                "page": page,
+                "limit": limit,
+                "total_pages": (total_count + limit - 1) // limit
+            }
+        
+        else:
+            # File-based fallback
+            return {
+                "threats": [],
+                "total": 0,
+                "page": page,
+                "limit": limit,
+                "total_pages": 0,
+                "message": "MongoDB not available"
+            }
+            
+    except Exception as e:
+        logger.error(f"Failed to get threats: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get threats: {str(e)}")
+
+@app.get("/api/threat/{threat_id}")
+async def get_threat_details(threat_id: str):
+    """Get detailed information about a specific threat"""
+    try:
+        if USE_MONGODB:
+            threat = await ThreatIntelligence.get(threat_id)
+            if not threat:
+                raise HTTPException(status_code=404, detail="Threat not found")
+            
+            # Get associated entities
+            entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list()
+            
+            # Get analysis results
+            analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list()
+            
+            return {
+                "threat": {
+                    "id": str(threat.id),
+                    "text": threat.text,
+                    "source": str(threat.source),
+                    "timestamp": threat.timestamp.isoformat(),
+                    "threat_category": str(threat.threat_category) if threat.threat_category else None,
+                    "severity_level": str(threat.severity_level) if threat.severity_level else None,
+                    "confidence_score": threat.confidence_score,
+                    "processed": threat.processed,
+                    "processing_timestamp": threat.processing_timestamp.isoformat() if threat.processing_timestamp else None,
+                    "analysis_details": threat.analysis_details
+                },
+                "entities": [
+                    {
+                        "id": str(entity.id),
+                        "text": entity.entity_text,
+                        "type": str(entity.entity_type),
+                        "confidence": entity.confidence_score,
+                        "start": entity.start_position,
+                        "end": entity.end_position
+                    }
+                    for entity in entities
+                ],
+                "analysis_results": [
+                    {
+                        "id": str(result.id),
+                        "type": result.analysis_type,
+                        "result": result.result,
+                        "confidence": result.confidence,
+                        "model_version": result.model_version,
+                        "processing_time_ms": result.processing_time_ms,
+                        "timestamp": result.timestamp.isoformat()
+                    }
+                    for result in analysis_results
+                ]
+            }
+        else:
+            raise HTTPException(status_code=503, detail="MongoDB not available")
+            
+    except Exception as e:
+        logger.error(f"Failed to get threat details: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get threat details: {str(e)}")
+
+@app.get("/api/entities")
+async def get_entities(limit: int = 50):
+    """Get extracted entities with counts"""
+    try:
+        if USE_MONGODB:
+            # Get top entities
+            entity_pipeline = [
+                {"$group": {"_id": {"text": "$entity_text", "type": "$entity_type"}, "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}},
+                {"$limit": limit}
+            ]
+            entity_results = await ExtractedEntity.get_motor_collection().aggregate(entity_pipeline).to_list(None)
+            
+            entities = []
+            for result in entity_results:
+                entities.append({
+                    "text": result["_id"]["text"],
+                    "type": result["_id"]["type"],
+                    "count": result["count"]
+                })
+            
+            return {"entities": entities}
+        else:
+            return {"entities": []}
+            
+    except Exception as e:
+        logger.error(f"Failed to get entities: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get entities: {str(e)}")
+
+@app.get("/api/sources")
+async def get_data_sources():
+    """Get information about data sources"""
+    try:
+        if USE_MONGODB:
+            # Get source statistics
+            source_pipeline = [
+                {"$group": {"_id": "$source", "count": {"$sum": 1}, "last_update": {"$max": "$timestamp"}}},
+                {"$sort": {"count": -1}}
+            ]
+            source_results = await ThreatIntelligence.get_motor_collection().aggregate(source_pipeline).to_list(None)
+            
+            sources = []
+            for result in source_results:
+                sources.append({
+                    "source": str(result["_id"]),
+                    "count": result["count"],
+                    "last_update": result["last_update"].isoformat() if result["last_update"] else None,
+                    "status": "active"
+                })
+            
+            # Get ingestion logs
+            recent_logs = await DataIngestionLog.find_all().sort([("start_time", -1)]).limit(10).to_list()
+            
+            logs = []
+            for log in recent_logs:
+                logs.append({
+                    "id": str(log.id),
+                    "source": str(log.source),
+                    "type": log.ingestion_type,
+                    "records_processed": log.records_processed,
+                    "records_successful": log.records_successful,
+                    "records_failed": log.records_failed,
+                    "start_time": log.start_time.isoformat(),
+                    "end_time": log.end_time.isoformat() if log.end_time else None,
+                    "duration_seconds": log.duration_seconds,
+                    "errors": log.errors[:5]  # Limit errors shown
+                })
+            
+            return {
+                "sources": sources,
+                "recent_logs": logs,
+                "total_records": sum(source["count"] for source in sources)
+            }
+        else:
+            return {
+                "sources": [],
+                "recent_logs": [],
+                "total_records": 0
+            }
+            
+    except Exception as e:
+        logger.error(f"Failed to get data sources: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get data sources: {str(e)}")
+
+@app.post("/api/ingest")
+async def trigger_data_ingestion():
+    """Trigger manual data ingestion and store results in MongoDB"""
+    try:
+        start_time = datetime.utcnow()
+        
+        # Trigger ingestion
+        logger.info("Manual data ingestion triggered via API")
+        await asyncio.create_task(asyncio.to_thread(ingest_all_sources_main))
+        
+        end_time = datetime.utcnow()
+        duration = (end_time - start_time).total_seconds()
+        
+        # Read the ingestion status
+        status_file = os.path.join("data", "last_ingestion.json")
+        if os.path.exists(status_file):
+            with open(status_file, "r", encoding="utf-8") as f:
+                status_data = json.load(f)
+        else:
+            status_data = {"summary": {}, "total_records": 0, "errors": {}}
+        
+        # Store ingestion log in MongoDB if available
+        if USE_MONGODB:
+            try:
+                ingestion_log = DataIngestionLog(
+                    source=DataSource.MANUAL,
+                    ingestion_type="api_triggered",
+                    records_processed=status_data.get("total_records", 0),
+                    records_successful=status_data.get("total_records", 0),
+                    records_failed=0,
+                    start_time=start_time,
+                    end_time=end_time,
+                    duration_seconds=duration,
+                    summary=status_data,
+                    errors=list(status_data.get("errors", {}).values()) if isinstance(status_data.get("errors"), dict) else []
+                )
+                await ingestion_log.insert()
+                logger.info(f"Ingestion log stored in MongoDB: {ingestion_log.id}")
+            except Exception as e:
+                logger.error(f"Failed to store ingestion log: {e}")
+        
+        return {
+            "status": "success",
+            "message": "Data ingestion completed",
+            "duration_seconds": duration,
+            "ingestion_result": status_data,
+            "stored_in_db": USE_MONGODB
+        }
+        
+    except Exception as e:
+        logger.error(f"Manual data ingestion failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
