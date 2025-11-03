@@ -1620,7 +1620,7 @@
         const startTime = Date.now();
 
         try {
-          const result = await apiCall("/analyze", {
+          const result = await apiCall("/api/analyze", {
             method: "POST",
             body: JSON.stringify({ text: text }),
           });
@@ -1640,22 +1640,22 @@
 
       function displayAnalysisResults(result, processingTime) {
         document.getElementById("resultThreatType").textContent =
-          result.threat_type || "Unknown";
+          result.threat_category || "Unknown";
         document.getElementById(
           "resultThreatType"
         ).className = `threat-type-badge bg-${getThreatTypeColor(
-          result.threat_type
+          result.threat_category
         )} text-white`;
 
         const severityElement = document.getElementById("resultSeverity");
-        severityElement.textContent = result.severity || "Unknown";
+        severityElement.textContent = result.severity_level || "Unknown";
         severityElement.className = `severity-badge severity-${(
-          result.severity || "low"
+          result.severity_level || "low"
         ).toLowerCase()}`;
 
         // Confidence score
         const confidence = Math.round(
-          (result.confidence_scores?.threat_classification || 0.8) * 100
+          (result.confidence_score || 0.8) * 100
         );
         const confidenceBar = document.getElementById("confidenceBar");
         confidenceBar.style.width = `${confidence}%`;
