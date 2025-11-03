@@ -14,8 +14,9 @@ import tempfile
 import os
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
+from pathlib import Path
 
 from backend.threat_ner import extract_threat_entities
 from backend.classifier import classify_threat
@@ -652,6 +653,156 @@ async def get_database_statistics():
             "database_type": "file_based",
             "file_stats": file_stats
         }
+
+@app.get("/analytics")
+async def get_analytics(days: int = 30):
+    """Get analytics data for the specified number of days"""
+    try:
+        if USE_MONGODB:
+            # Calculate date range
+            from datetime import timedelta
+            end_date = datetime.utcnow()
+            start_date = end_date - timedelta(days=days)
+            
+            # Get total threats in date range
+            total_threats = await ThreatIntelligence.find(
+                ThreatIntelligence.timestamp >= start_date,
+                ThreatIntelligence.timestamp <= end_date
+            ).count()
+            
+            # Get threats by category
+            category_pipeline = [
+                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list()
+            threats_by_category = {}
+            for result in category_results:
+                category = result.get("_id")
+                if category:
+                    threats_by_category[str(category)] = result.get("count", 0)
+            
+            # Get threats by severity
+            severity_pipeline = [
+                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list()
+            threats_by_severity = {}
+            for result in severity_results:
+                severity = result.get("_id")
+                if severity:
+                    threats_by_severity[str(severity)] = result.get("count", 0)
+            
+            # Get threats by source
+            source_pipeline = [
+                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                {"$group": {"_id": "$source", "count": {"$sum": 1}}},
+                {"$sort": {"count": -1}}
+            ]
+            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list()
+            threats_by_source = {}
+            for result in source_results:
+                source = result.get("_id")
+                if source:
+                    threats_by_source[str(source)] = result.get("count", 0)
+            
+            # Get timeline data (threats per day)
+            timeline_pipeline = [
+                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                {
+                    "$group": {
+                        "_id": {
+                            "$dateToString": {
+                                "format": "%Y-%m-%d",
+                                "date": "$timestamp"
+                            }
+                        },
+                        "count": {"$sum": 1}
+                    }
+                },
+                {"$sort": {"_id": 1}}
+            ]
+            timeline_results = await ThreatIntelligence.aggregate(timeline_pipeline).to_list()
+            threats_timeline = [
+                {"date": result["_id"], "count": result["count"]}
+                for result in timeline_results
+            ]
+            
+            # Get recent threats
+            recent_threats = await ThreatIntelligence.find(
+                ThreatIntelligence.timestamp >= start_date,
+                ThreatIntelligence.timestamp <= end_date
+            ).sort([("timestamp", -1)]).limit(10).to_list()
+            
+            recent_threats_data = []
+            for threat in recent_threats:
+                recent_threats_data.append({
+                    "id": str(threat.id),
+                    "text": threat.text[:100] + "..." if len(threat.text) > 100 else threat.text,
+                    "source": str(threat.source),
+                    "timestamp": threat.timestamp.isoformat(),
+                    "threat_category": str(threat.threat_category) if threat.threat_category else None,
+                    "severity_level": str(threat.severity_level) if threat.severity_level else None,
+                    "processed": threat.processed
+                })
+            
+            # Get top entities
+            top_entities = []
+            try:
+                entity_pipeline = [
+                    {"$group": {"_id": "$entity_text", "count": {"$sum": 1}}},
+                    {"$sort": {"count": -1}},
+                    {"$limit": 10}
+                ]
+                entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list()
+                top_entities = [
+                    {"entity": result["_id"], "count": result["count"]}
+                    for result in entity_results
+                ]
+            except Exception as e:
+                logger.error(f"Failed to get entities: {e}")
+                top_entities = []
+            
+            return {
+                "total_threats": total_threats,
+                "threats_by_category": threats_by_category,
+                "threats_by_severity": threats_by_severity,
+                "threats_by_source": threats_by_source,
+                "threats_timeline": threats_timeline,
+                "recent_threats": recent_threats_data,
+                "top_entities": top_entities,
+                "date_range": {
+                    "start": start_date.isoformat(),
+                    "end": end_date.isoformat(),
+                    "days": days
+                },
+                "database_mode": "mongodb"
+            }
+            
+        else:
+            # File-based fallback with mock analytics data
+            return {
+                "total_threats": 0,
+                "threats_by_category": {},
+                "threats_by_severity": {},
+                "threats_by_source": {},
+                "threats_timeline": [],
+                "recent_threats": [],
+                "top_entities": [],
+                "date_range": {
+                    "start": (datetime.utcnow() - timedelta(days=days)).isoformat(),
+                    "end": datetime.utcnow().isoformat(),
+                    "days": days
+                },
+                "database_mode": "file_based"
+            }
+            
+    except Exception as e:
+        logger.error(f"Failed to get analytics data: {e}")
+        raise HTTPException(status_code=500, detail=f"Analytics failed: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
