@@ -852,7 +852,7 @@ async def get_analytics(days: int = 30):
             
         except Exception as e:
             logger.error(f"Failed to get analytics data: {e}")
-        raise HTTPException(status_code=500, detail=f"Analytics failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Analytics failed: {str(e)}")
 
 # Additional API endpoints for dashboard sub-pages
 
