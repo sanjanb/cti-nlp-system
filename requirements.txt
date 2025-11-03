@@ -48,3 +48,4 @@ prometheus-client
 pymongo 
 motor 
 beanie
+langdetect
