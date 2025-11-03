@@ -747,12 +747,11 @@
                       onchange="filterThreats()"
                     >
                       <option value="">All Types</option>
-                      <option value="Phishing">Phishing</option>
                       <option value="Malware">Malware</option>
+                      <option value="Phishing">Phishing</option>
                       <option value="Ransomware">Ransomware</option>
-                      <option value="APT">APT</option>
                       <option value="DDoS">DDoS</option>
-                      <option value="Data Breach">Data Breach</option>
+                      <option value="Other">Other</option>
                     </select>
                     <select
                       class="form-select form-select-sm"
@@ -764,20 +763,29 @@
                       <option value="High">High</option>
                       <option value="Medium">Medium</option>
                       <option value="Low">Low</option>
+                      <option value="Very Low">Very Low</option>
                     </select>
                     <button
                       class="btn btn-sm btn-outline-primary"
-                      onclick="refreshThreats()"
+                      onclick="loadThreats(1)"
                     >
                       <i class="bi bi-arrow-clockwise me-1"></i>Refresh
                     </button>
                   </div>
                 </div>
                 <div class="card-body p-0">
-                  <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                      <thead class="table-light">
-                        <tr>
+                  <div id="threatsList">
+                    <div class="text-center p-4">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading threats...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
                           <th>ID</th>
                           <th>Source</th>
                           <th>Threat Type</th>
@@ -825,6 +833,43 @@
 
         <!-- Analytics Tab -->
         <div class="tab-pane fade" id="analytics" role="tabpanel">
+          <!-- Analytics Summary -->
+          <div class="row mb-3">
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="card-title text-primary" id="analyticsTotal">-</h3>
+                  <p class="card-text">Total Threats</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="card-title text-warning" id="analyticsProcessed">-</h3>
+                  <p class="card-text">Processed</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="card-title text-success" id="analyticsCategories">-</h3>
+                  <p class="card-text">Categories</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h6 class="card-title text-muted" id="analyticsDateRange">Last 30 Days</h6>
+                  <p class="card-text">Date Range</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Charts Row -->
           <div class="row">
             <div class="col-lg-6">
               <div class="card">
@@ -877,17 +922,17 @@
         <!-- Ingestion Tab -->
         <div class="tab-pane fade" id="ingestion" role="tabpanel">
           <div class="row">
-            <div class="col-lg-8">
+            <div class="col-12">
               <div class="card">
                 <div
                   class="card-header d-flex justify-content-between align-items-center"
                 >
                   <h5 class="card-title mb-0">
-                    <i class="bi bi-cloud-download me-2"></i>Data Source Status
+                    <i class="bi bi-cloud-download me-2"></i>Data Sources Management
                   </h5>
                   <button
                     class="btn btn-success"
-                    onclick="triggerFullIngestion()"
+                    onclick="triggerIngestion()"
                   >
                     <i class="bi bi-play-circle me-2"></i>Run Full Ingestion
                     <span
@@ -898,31 +943,18 @@
                   </button>
                 </div>
                 <div class="card-body">
-                  <div class="row">
-                    <div class="col-md-4">
-                      <div class="card border">
-                        <div class="card-body text-center">
-                          <i
-                            class="bi bi-twitter text-primary"
-                            style="font-size: 2rem"
-                          ></i>
-                          <h6 class="mt-2">Twitter/X</h6>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Records:</small>
-                            <span id="twitterCount" class="fw-bold">0</span>
-                          </div>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Last Run:</small>
-                            <span id="twitterLastRun" class="text-muted"
-                              >Never</span
-                            >
-                          </div>
-                          <button
-                            class="btn btn-sm btn-outline-primary mt-2"
-                            onclick="ingestTwitter()"
-                          >
-                            Ingest Now
-                          </button>
+                  <div id="dataSourcesList">
+                    <div class="text-center p-4">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading data sources...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
                         </div>
                       </div>
                     </div>
