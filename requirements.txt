@@ -44,3 +44,7 @@ isort
 
 # Monitoring
 prometheus-client
+
+pymongo 
+motor 
+beanie
