@@ -243,6 +243,115 @@
         display: none;
       }
 
+      /* Analytics Dashboard Styles */
+      .border-left-primary {
+        border-left: 0.25rem solid var(--brand-primary) !important;
+      }
+      
+      .border-left-warning {
+        border-left: 0.25rem solid var(--brand-warning) !important;
+      }
+      
+      .border-left-success {
+        border-left: 0.25rem solid var(--brand-success) !important;
+      }
+      
+      .border-left-info {
+        border-left: 0.25rem solid var(--brand-info) !important;
+      }
+
+      .chart-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .analytics-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+      }
+
+      .metric-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      }
+
+      .threat-category-item {
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .threat-category-item:hover {
+        background: #e9ecef !important;
+        transform: translateX(5px);
+      }
+
+      .gauge-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .gauge-value {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+      }
+
+      .progress {
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        transition: width 0.6s ease;
+      }
+
+      .analytics-timeline-controls {
+        background: #f8f9fa;
+        padding: 0.5rem;
+        border-radius: 0.375rem;
+        margin-bottom: 1rem;
+      }
+
+      .threat-priority-high {
+        border-left: 4px solid #dc3545;
+      }
+
+      .threat-priority-medium {
+        border-left: 4px solid #ffc107;
+      }
+
+      .threat-priority-low {
+        border-left: 4px solid #198754;
+      }
+
+      .analytics-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+      }
+
+      .loading-spinner {
+        width: 2rem;
+        height: 2rem;
+        margin: 2rem auto;
+      }
+
+      .analytics-grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      }
+
       @media (max-width: 768px) {
         .main-content {
           padding: 0.5rem;
@@ -254,6 +363,14 @@
 
         .stat-number {
           font-size: 1.5rem;
+        }
+
+        .chart-container {
+          height: 250px !important;
+        }
+
+        .analytics-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -833,85 +950,421 @@
 
         <!-- Analytics Tab -->
         <div class="tab-pane fade" id="analytics" role="tabpanel">
-          <!-- Analytics Summary -->
-          <div class="row mb-3">
-            <div class="col-md-3">
-              <div class="card text-center">
+          <!-- Dashboard Header -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 class="mb-1"><i class="bi bi-graph-up-arrow me-2"></i>Threat Intelligence Analytics</h4>
+              <p class="text-muted mb-0">Comprehensive threat landscape overview and insights</p>
+            </div>
+            <div class="d-flex gap-2">
+              <select class="form-select form-select-sm" id="timeRangeFilter" style="width: auto;">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last Year</option>
+              </select>
+              <button class="btn btn-outline-primary btn-sm" onclick="refreshAnalytics()">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Key Metrics Row -->
+          <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card border-left-primary h-100">
                 <div class="card-body">
-                  <h3 class="card-title text-primary" id="analyticsTotal">-</h3>
-                  <p class="card-text">Total Threats</p>
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <div class="small text-primary fw-bold mb-1">TOTAL THREATS</div>
+                      <div class="h4 mb-0" id="analyticsTotal">-</div>
+                      <div class="small text-muted">
+                        <i class="bi bi-arrow-up text-success me-1"></i>
+                        <span id="totalGrowth">+12%</span> from last period
+                      </div>
+                    </div>
+                    <div class="text-primary">
+                      <i class="bi bi-shield-exclamation" style="font-size: 2rem;"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card text-center">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card border-left-warning h-100">
                 <div class="card-body">
-                  <h3 class="card-title text-warning" id="analyticsProcessed">-</h3>
-                  <p class="card-text">Processed</p>
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <div class="small text-warning fw-bold mb-1">HIGH SEVERITY</div>
+                      <div class="h4 mb-0" id="highSeverityCount">-</div>
+                      <div class="small text-muted">
+                        <i class="bi bi-arrow-down text-success me-1"></i>
+                        <span id="severityGrowth">-5%</span> from last period
+                      </div>
+                    </div>
+                    <div class="text-warning">
+                      <i class="bi bi-exclamation-triangle" style="font-size: 2rem;"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card text-center">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card border-left-success h-100">
                 <div class="card-body">
-                  <h3 class="card-title text-success" id="analyticsCategories">-</h3>
-                  <p class="card-text">Categories</p>
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <div class="small text-success fw-bold mb-1">CATEGORIES</div>
+                      <div class="h4 mb-0" id="analyticsCategories">-</div>
+                      <div class="small text-muted">
+                        <i class="bi bi-arrow-up text-success me-1"></i>
+                        <span id="categoryGrowth">+3</span> new categories
+                      </div>
+                    </div>
+                    <div class="text-success">
+                      <i class="bi bi-diagram-3" style="font-size: 2rem;"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card text-center">
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card border-left-info h-100">
                 <div class="card-body">
-                  <h6 class="card-title text-muted" id="analyticsDateRange">Last 30 Days</h6>
-                  <p class="card-text">Date Range</p>
+                  <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                      <div class="small text-info fw-bold mb-1">DATA SOURCES</div>
+                      <div class="h4 mb-0" id="activeDataSources">3</div>
+                      <div class="small text-muted">
+                        <span class="badge bg-success">Twitter</span>
+                        <span class="badge bg-danger">Dark Web</span>
+                        <span class="badge bg-warning">MITRE</span>
+                      </div>
+                    </div>
+                    <div class="text-info">
+                      <i class="bi bi-database" style="font-size: 2rem;"></i>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          
-          <!-- Charts Row -->
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="card">
+
+          <!-- Charts Row 1 -->
+          <div class="row mb-4">
+            <div class="col-lg-8">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Threat Timeline & Trends
+                  </h5>
+                  <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      View
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" onclick="updateTimelineView('daily')">Daily</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="updateTimelineView('weekly')">Weekly</a></li>
+                      <li><a class="dropdown-item" href="#" onclick="updateTimelineView('monthly')">Monthly</a></li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container" style="height: 300px;">
+                    <canvas id="timelineChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card h-100">
                 <div class="card-header">
                   <h5 class="card-title mb-0">
                     <i class="bi bi-pie-chart me-2"></i>Threat Distribution
                   </h5>
                 </div>
                 <div class="card-body">
-                  <div class="chart-container">
+                  <div class="chart-container" style="height: 300px;">
                     <canvas id="threatDistributionChart"></canvas>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
-              <div class="card">
+          </div>
+
+          <!-- Charts Row 2 -->
+          <div class="row mb-4">
+            <div class="col-lg-4">
+              <div class="card h-100">
                 <div class="card-header">
                   <h5 class="card-title mb-0">
-                    <i class="bi bi-bar-chart me-2"></i>Severity Levels
+                    <i class="bi bi-bar-chart me-2"></i>Severity Analysis
                   </h5>
                 </div>
                 <div class="card-body">
-                  <div class="chart-container">
+                  <div class="chart-container" style="height: 280px;">
                     <canvas id="severityChart"></canvas>
                   </div>
                 </div>
               </div>
             </div>
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-diagram-2 me-2"></i>Source Distribution
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container" style="height: 280px;">
+                    <canvas id="sourceChart"></canvas>
+                  </div>
+                  <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small">Twitter</span>
+                      <span class="badge bg-info" id="twitterPercent">45%</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                      <div class="progress-bar bg-info" id="twitterProgress" style="width: 45%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small">Dark Web</span>
+                      <span class="badge bg-danger" id="darkwebPercent">35%</span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                      <div class="progress-bar bg-danger" id="darkwebProgress" style="width: 35%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small">MITRE ATT&CK</span>
+                      <span class="badge bg-warning" id="mitrePercent">20%</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                      <div class="progress-bar bg-warning" id="mitreProgress" style="width: 20%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>Geographic Distribution
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="chart-container" style="height: 280px;">
+                    <canvas id="geoChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="row mt-3">
+
+          <!-- Advanced Analytics Row -->
+          <div class="row mb-4">
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history me-2"></i>Recent High-Priority Threats
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Threat</th>
+                          <th>Severity</th>
+                          <th>Source</th>
+                          <th>Time</th>
+                        </tr>
+                      </thead>
+                      <tbody id="recentThreatsTable">
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-bug text-danger me-2"></i>
+                              <span>Malware Campaign</span>
+                            </div>
+                          </td>
+                          <td><span class="badge bg-danger">Critical</span></td>
+                          <td><span class="badge bg-info">Twitter</span></td>
+                          <td class="text-muted small">2h ago</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-shield-slash text-warning me-2"></i>
+                              <span>Phishing Attack</span>
+                            </div>
+                          </td>
+                          <td><span class="badge bg-warning">High</span></td>
+                          <td><span class="badge bg-danger">Dark Web</span></td>
+                          <td class="text-muted small">5h ago</td>
+                        </tr>
+                        <tr>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-exclamation-triangle text-info me-2"></i>
+                              <span>APT Activity</span>
+                            </div>
+                          </td>
+                          <td><span class="badge bg-info">Medium</span></td>
+                          <td><span class="badge bg-warning">MITRE</span></td>
+                          <td class="text-muted small">1d ago</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="text-center">
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadMoreThreats()">
+                      <i class="bi bi-arrow-down me-1"></i>Load More
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-tags me-2"></i>Top Threat Categories
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <div id="topCategories">
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-bug text-danger me-3" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <div class="fw-bold">Malware</div>
+                          <small class="text-muted">Network intrusions & trojans</small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold text-danger">1,234</div>
+                        <small class="text-muted">32%</small>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-shield-slash text-warning me-3" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <div class="fw-bold">Phishing</div>
+                          <small class="text-muted">Social engineering attacks</small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold text-warning">892</div>
+                        <small class="text-muted">23%</small>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-pc-display text-info me-3" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <div class="fw-bold">APT</div>
+                          <small class="text-muted">Advanced persistent threats</small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold text-info">567</div>
+                        <small class="text-muted">15%</small>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-database-slash text-secondary me-3" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <div class="fw-bold">Data Breach</div>
+                          <small class="text-muted">Information leakage</small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold text-secondary">423</div>
+                        <small class="text-muted">11%</small>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-wifi-off text-dark me-3" style="font-size: 1.2rem;"></i>
+                        <div>
+                          <div class="fw-bold">DDoS</div>
+                          <small class="text-muted">Service disruption attacks</small>
+                        </div>
+                      </div>
+                      <div class="text-end">
+                        <div class="fw-bold text-dark">291</div>
+                        <small class="text-muted">8%</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Performance Metrics Row -->
+          <div class="row">
             <div class="col-12">
               <div class="card">
                 <div class="card-header">
                   <h5 class="card-title mb-0">
-                    <i class="bi bi-graph-up me-2"></i>Threat Timeline (Last 30
-                    Days)
+                    <i class="bi bi-speedometer2 me-2"></i>System Performance & Health
                   </h5>
                 </div>
                 <div class="card-body">
-                  <div class="chart-container">
-                    <canvas id="timelineChart"></canvas>
+                  <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="text-center">
+                        <div class="small text-muted mb-2">PROCESSING SPEED</div>
+                        <div class="position-relative d-inline-block">
+                          <canvas id="processingSpeedGauge" width="120" height="120"></canvas>
+                          <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold" id="processingSpeed">2.3K</div>
+                            <small class="text-muted">threats/hr</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="text-center">
+                        <div class="small text-muted mb-2">MODEL ACCURACY</div>
+                        <div class="position-relative d-inline-block">
+                          <canvas id="accuracyGauge" width="120" height="120"></canvas>
+                          <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold text-success" id="modelAccuracy">94.2%</div>
+                            <small class="text-muted">accuracy</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="text-center">
+                        <div class="small text-muted mb-2">DATA FRESHNESS</div>
+                        <div class="position-relative d-inline-block">
+                          <canvas id="freshnessGauge" width="120" height="120"></canvas>
+                          <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold text-info" id="dataFreshness">12</div>
+                            <small class="text-muted">min ago</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="text-center">
+                        <div class="small text-muted mb-2">SYSTEM HEALTH</div>
+                        <div class="position-relative d-inline-block">
+                          <canvas id="healthGauge" width="120" height="120"></canvas>
+                          <div class="position-absolute top-50 start-50 translate-middle text-center">
+                            <div class="fw-bold text-success" id="systemHealth">Optimal</div>
+                            <small class="text-muted">status</small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1026,66 +1479,7 @@
             </div>
           </div>
         </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="card border">
-                        <div class="card-body text-center">
-                          <i
-                            class="bi bi-globe text-danger"
-                            style="font-size: 2rem"
-                          ></i>
-                          <h6 class="mt-2">Dark Web</h6>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Records:</small>
-                            <span id="darkwebCount" class="fw-bold">0</span>
-                          </div>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Last Run:</small>
-                            <span id="darkwebLastRun" class="text-muted"
-                              >Never</span
-                            >
-                          </div>
-                          <button
-                            class="btn btn-sm btn-outline-danger mt-2"
-                            onclick="ingestDarkweb()"
-                          >
-                            Ingest Now
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="card border">
-                        <div class="card-body text-center">
-                          <i
-                            class="bi bi-shield-check text-success"
-                            style="font-size: 2rem"
-                          ></i>
-                          <h6 class="mt-2">MITRE ATT&CK</h6>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Records:</small>
-                            <span id="mitreCount" class="fw-bold">0</span>
-                          </div>
-                          <div class="d-flex justify-content-between">
-                            <small class="text-muted">Last Run:</small>
-                            <span id="mitreLastRun" class="text-muted"
-                              >Never</span
-                            >
-                          </div>
-                          <button
-                            class="btn btn-sm btn-outline-success mt-2"
-                            onclick="ingestMitre()"
-                          >
-                            Ingest Now
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
 
               <!-- Ingestion Logs -->
               <div class="card mt-3">
