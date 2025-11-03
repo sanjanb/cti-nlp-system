@@ -2250,14 +2250,13 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
         try {
           // Refresh threat feed
           await refreshThreatFeed();
-          
+
           // Refresh system health
           await checkSystemHealth();
-          
+
           // Load quick stats
           const stats = await apiCall("/api/stats");
           updateDashboardStats(stats);
-          
         } catch (error) {
           console.error("Failed to load dashboard:", error);
         }
@@ -2268,7 +2267,7 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
         // Clear previous results
         document.getElementById("analysisResults").style.display = "none";
         document.getElementById("analysisResultsContent").innerHTML = "";
-        
+
         // Focus on text input
         const textInput = document.getElementById("threatText");
         if (textInput) {
@@ -2281,24 +2280,29 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
         try {
           const threatsContainer = document.getElementById("threatsList");
           if (!threatsContainer) return;
-          
-          threatsContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"></div></div>';
-          
+
+          threatsContainer.innerHTML =
+            '<div class="text-center p-4"><div class="spinner-border" role="status"></div></div>';
+
           const response = await apiCall(`/api/threats?page=${page}&limit=20`);
-          
+
           let threatsHtml = "";
           if (response.threats && response.threats.length > 0) {
-            response.threats.forEach(threat => {
-              const categoryBadge = threat.threat_category ? 
-                `<span class="badge bg-primary">${threat.threat_category}</span>` : 
-                '<span class="badge bg-secondary">Unclassified</span>';
-              
-              const severityBadge = threat.severity_level ? 
-                `<span class="badge ${getSeverityColor(threat.severity_level)}">${threat.severity_level}</span>` : 
-                '<span class="badge bg-secondary">Unknown</span>';
-              
+            response.threats.forEach((threat) => {
+              const categoryBadge = threat.threat_category
+                ? `<span class="badge bg-primary">${threat.threat_category}</span>`
+                : '<span class="badge bg-secondary">Unclassified</span>';
+
+              const severityBadge = threat.severity_level
+                ? `<span class="badge ${getSeverityColor(
+                    threat.severity_level
+                  )}">${threat.severity_level}</span>`
+                : '<span class="badge bg-secondary">Unknown</span>';
+
               threatsHtml += `
-                <div class="threat-item border-bottom p-3" data-threat-id="${threat.id}">
+                <div class="threat-item border-bottom p-3" data-threat-id="${
+                  threat.id
+                }">
                   <div class="d-flex justify-content-between align-items-start">
                     <div class="flex-grow-1">
                       <div class="d-flex gap-2 mb-2">
@@ -2306,38 +2310,46 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
                         ${severityBadge}
                         <span class="badge bg-info">${threat.source}</span>
                       </div>
-                      <p class="mb-2">${threat.text.substring(0, 200)}${threat.text.length > 200 ? '...' : ''}</p>
+                      <p class="mb-2">${threat.text.substring(0, 200)}${
+                threat.text.length > 200 ? "..." : ""
+              }</p>
                       <small class="text-muted">
                         ${new Date(threat.timestamp).toLocaleString()}
-                        ${threat.processed ? '<i class="bi bi-check-circle-fill text-success ms-2"></i>' : '<i class="bi bi-clock text-warning ms-2"></i>'}
+                        ${
+                          threat.processed
+                            ? '<i class="bi bi-check-circle-fill text-success ms-2"></i>'
+                            : '<i class="bi bi-clock text-warning ms-2"></i>'
+                        }
                       </small>
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="viewThreatDetails('${threat.id}')">
+                    <button class="btn btn-sm btn-outline-primary" onclick="viewThreatDetails('${
+                      threat.id
+                    }')">
                       <i class="bi bi-eye"></i>
                     </button>
                   </div>
                 </div>
               `;
             });
-            
+
             // Add pagination
             if (response.total_pages > 1) {
               threatsHtml += '<div class="p-3 text-center">';
               for (let i = 1; i <= Math.min(response.total_pages, 10); i++) {
-                const activeClass = i === response.page ? 'active' : '';
+                const activeClass = i === response.page ? "active" : "";
                 threatsHtml += `<button class="btn btn-sm btn-outline-primary mx-1 ${activeClass}" onclick="loadThreats(${i})">${i}</button>`;
               }
-              threatsHtml += '</div>';
+              threatsHtml += "</div>";
             }
           } else {
             threatsHtml = '<div class="text-center p-4">No threats found</div>';
           }
-          
+
           threatsContainer.innerHTML = threatsHtml;
-          
         } catch (error) {
           console.error("Failed to load threats:", error);
-          document.getElementById("threatsList").innerHTML = '<div class="text-center p-4 text-danger">Failed to load threats</div>';
+          document.getElementById("threatsList").innerHTML =
+            '<div class="text-center p-4 text-danger">Failed to load threats</div>';
         }
       }
 
@@ -2345,15 +2357,14 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
       async function loadAnalytics() {
         try {
           const analyticsData = await apiCall("/analytics?days=30");
-          
+
           // Update charts
           createCategoryChart(analyticsData.threats_by_category || {});
           createSeverityChart(analyticsData.threats_by_severity || {});
           createTimelineChart(analyticsData.threats_timeline || []);
-          
+
           // Update analytics stats
           updateAnalyticsStats(analyticsData);
-          
         } catch (error) {
           console.error("Failed to load analytics:", error);
         }
@@ -2364,18 +2375,20 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
         try {
           const sourcesContainer = document.getElementById("dataSourcesList");
           if (!sourcesContainer) return;
-          
-          sourcesContainer.innerHTML = '<div class="text-center p-4"><div class="spinner-border" role="status"></div></div>';
-          
+
+          sourcesContainer.innerHTML =
+            '<div class="text-center p-4"><div class="spinner-border" role="status"></div></div>';
+
           const response = await apiCall("/api/sources");
-          
+
           let sourcesHtml = "";
           if (response.sources && response.sources.length > 0) {
-            response.sources.forEach(source => {
-              const statusBadge = source.status === 'active' ? 
-                '<span class="badge bg-success">Active</span>' : 
-                '<span class="badge bg-secondary">Inactive</span>';
-              
+            response.sources.forEach((source) => {
+              const statusBadge =
+                source.status === "active"
+                  ? '<span class="badge bg-success">Active</span>'
+                  : '<span class="badge bg-secondary">Inactive</span>';
+
               sourcesHtml += `
                 <div class="card mb-3">
                   <div class="card-body">
@@ -2383,12 +2396,18 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
                       <div>
                         <h6 class="card-title mb-1">${source.source}</h6>
                         <p class="card-text text-muted mb-1">${source.count.toLocaleString()} records</p>
-                        <small class="text-muted">Last updated: ${source.last_update ? new Date(source.last_update).toLocaleString() : 'Never'}</small>
+                        <small class="text-muted">Last updated: ${
+                          source.last_update
+                            ? new Date(source.last_update).toLocaleString()
+                            : "Never"
+                        }</small>
                       </div>
                       <div class="text-end">
                         ${statusBadge}
                         <br>
-                        <button class="btn btn-sm btn-primary mt-2" onclick="triggerIngestion('${source.source}')">
+                        <button class="btn btn-sm btn-primary mt-2" onclick="triggerIngestion('${
+                          source.source
+                        }')">
                           <i class="bi bi-download"></i> Ingest
                         </button>
                       </div>
@@ -2398,14 +2417,16 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
               `;
             });
           } else {
-            sourcesHtml = '<div class="text-center p-4">No data sources configured</div>';
+            sourcesHtml =
+              '<div class="text-center p-4">No data sources configured</div>';
           }
-          
+
           // Add recent logs
           if (response.recent_logs && response.recent_logs.length > 0) {
             sourcesHtml += '<h6 class="mt-4">Recent Ingestion Logs</h6>';
-            response.recent_logs.forEach(log => {
-              const statusClass = log.records_failed > 0 ? 'text-warning' : 'text-success';
+            response.recent_logs.forEach((log) => {
+              const statusClass =
+                log.records_failed > 0 ? "text-warning" : "text-success";
               sourcesHtml += `
                 <div class="card mb-2">
                   <div class="card-body py-2">
@@ -2413,11 +2434,19 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
                       <div>
                         <strong>${log.source}</strong> - ${log.type}
                         <br>
-                        <small class="text-muted">${new Date(log.start_time).toLocaleString()}</small>
+                        <small class="text-muted">${new Date(
+                          log.start_time
+                        ).toLocaleString()}</small>
                       </div>
                       <div class="text-end ${statusClass}">
-                        <div>${log.records_successful}/${log.records_processed} successful</div>
-                        <small>${log.duration_seconds ? log.duration_seconds.toFixed(1) + 's' : 'N/A'}</small>
+                        <div>${log.records_successful}/${
+                log.records_processed
+              } successful</div>
+                        <small>${
+                          log.duration_seconds
+                            ? log.duration_seconds.toFixed(1) + "s"
+                            : "N/A"
+                        }</small>
                       </div>
                     </div>
                   </div>
@@ -2425,23 +2454,28 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
               `;
             });
           }
-          
+
           sourcesContainer.innerHTML = sourcesHtml;
-          
         } catch (error) {
           console.error("Failed to load data sources:", error);
-          document.getElementById("dataSourcesList").innerHTML = '<div class="text-center p-4 text-danger">Failed to load data sources</div>';
+          document.getElementById("dataSourcesList").innerHTML =
+            '<div class="text-center p-4 text-danger">Failed to load data sources</div>';
         }
       }
 
       // Helper function to get severity color
       function getSeverityColor(severity) {
         switch (severity.toLowerCase()) {
-          case 'critical': return 'bg-danger';
-          case 'high': return 'bg-warning';
-          case 'medium': return 'bg-info';
-          case 'low': return 'bg-success';
-          default: return 'bg-secondary';
+          case "critical":
+            return "bg-danger";
+          case "high":
+            return "bg-warning";
+          case "medium":
+            return "bg-info";
+          case "low":
+            return "bg-success";
+          default:
+            return "bg-secondary";
         }
       }
 
@@ -2449,7 +2483,7 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
       async function viewThreatDetails(threatId) {
         try {
           const threat = await apiCall(`/api/threat/${threatId}`);
-          
+
           // Create modal content
           const modalContent = `
             <div class="modal fade" id="threatDetailsModal" tabindex="-1">
@@ -2462,16 +2496,22 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
                   <div class="modal-body">
                     <div class="mb-3">
                       <strong>Text:</strong>
-                      <p class="mt-2 p-3 bg-light rounded">${threat.threat.text}</p>
+                      <p class="mt-2 p-3 bg-light rounded">${
+                        threat.threat.text
+                      }</p>
                     </div>
                     <div class="row mb-3">
                       <div class="col-md-6">
                         <strong>Category:</strong> 
-                        <span class="badge bg-primary">${threat.threat.threat_category || 'Unclassified'}</span>
+                        <span class="badge bg-primary">${
+                          threat.threat.threat_category || "Unclassified"
+                        }</span>
                       </div>
                       <div class="col-md-6">
                         <strong>Severity:</strong> 
-                        <span class="badge ${getSeverityColor(threat.threat.severity_level)}">${threat.threat.severity_level || 'Unknown'}</span>
+                        <span class="badge ${getSeverityColor(
+                          threat.threat.severity_level
+                        )}">${threat.threat.severity_level || "Unknown"}</span>
                       </div>
                     </div>
                     <div class="row mb-3">
@@ -2479,21 +2519,33 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
                         <strong>Source:</strong> ${threat.threat.source}
                       </div>
                       <div class="col-md-6">
-                        <strong>Confidence:</strong> ${(threat.threat.confidence_score * 100).toFixed(1)}%
+                        <strong>Confidence:</strong> ${(
+                          threat.threat.confidence_score * 100
+                        ).toFixed(1)}%
                       </div>
                     </div>
-                    ${threat.entities && threat.entities.length > 0 ? `
+                    ${
+                      threat.entities && threat.entities.length > 0
+                        ? `
                       <div class="mb-3">
                         <strong>Extracted Entities:</strong>
                         <div class="mt-2">
-                          ${threat.entities.map(entity => `
+                          ${threat.entities
+                            .map(
+                              (entity) => `
                             <span class="badge bg-secondary me-2">${entity.text} (${entity.type})</span>
-                          `).join('')}
+                          `
+                            )
+                            .join("")}
                         </div>
                       </div>
-                    ` : ''}
+                    `
+                        : ""
+                    }
                     <div class="mb-3">
-                      <strong>Timestamp:</strong> ${new Date(threat.threat.timestamp).toLocaleString()}
+                      <strong>Timestamp:</strong> ${new Date(
+                        threat.threat.timestamp
+                      ).toLocaleString()}
                     </div>
                   </div>
                   <div class="modal-footer">
@@ -2503,20 +2555,21 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
               </div>
             </div>
           `;
-          
+
           // Remove existing modal
-          const existingModal = document.getElementById('threatDetailsModal');
+          const existingModal = document.getElementById("threatDetailsModal");
           if (existingModal) {
             existingModal.remove();
           }
-          
+
           // Add new modal
-          document.body.insertAdjacentHTML('beforeend', modalContent);
-          
+          document.body.insertAdjacentHTML("beforeend", modalContent);
+
           // Show modal
-          const modal = new bootstrap.Modal(document.getElementById('threatDetailsModal'));
+          const modal = new bootstrap.Modal(
+            document.getElementById("threatDetailsModal")
+          );
           modal.show();
-          
         } catch (error) {
           console.error("Failed to load threat details:", error);
           showToast("Failed to load threat details", "error");
@@ -2524,17 +2577,16 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
       }
 
       // Function to trigger ingestion for a specific source
-      async function triggerIngestion(source = 'all') {
+      async function triggerIngestion(source = "all") {
         try {
           showToast("Triggering data ingestion...", "info");
-          
+
           const response = await apiCall("/api/ingest", "POST");
-          
+
           showToast("Data ingestion completed successfully", "success");
-          
+
           // Refresh data sources
           loadDataSources();
-          
         } catch (error) {
           console.error("Failed to trigger ingestion:", error);
           showToast("Failed to trigger data ingestion", "error");
@@ -2544,14 +2596,17 @@ Entities: ${JSON.stringify(lastAnalysisData.entities, null, 2)}`;
       // Function to update analytics stats
       function updateAnalyticsStats(data) {
         // Update analytics summary cards if they exist
-        const totalThreatsEl = document.getElementById('analyticsTotal');
+        const totalThreatsEl = document.getElementById("analyticsTotal");
         if (totalThreatsEl) {
-          totalThreatsEl.textContent = data.total_threats?.toLocaleString() || '0';
+          totalThreatsEl.textContent =
+            data.total_threats?.toLocaleString() || "0";
         }
-        
-        const dateRangeEl = document.getElementById('analyticsDateRange');
+
+        const dateRangeEl = document.getElementById("analyticsDateRange");
         if (dateRangeEl && data.date_range) {
-          const startDate = new Date(data.date_range.start).toLocaleDateString();
+          const startDate = new Date(
+            data.date_range.start
+          ).toLocaleDateString();
           const endDate = new Date(data.date_range.end).toLocaleDateString();
           dateRangeEl.textContent = `${startDate} - ${endDate}`;
         }
