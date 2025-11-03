@@ -351,7 +351,9 @@ async def get_dashboard_stats():
                 {"$sort": {"count": -1}},
                 {"$limit": 10}
             ]
-            entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list()
+            entity_results = []
+            async for doc in ExtractedEntity.aggregate(entity_pipeline):
+                entity_results.append(doc)
             top_entities = [{"entity": result["_id"], "count": result["count"]} for result in entity_results]
             
             return DashboardStats(
@@ -726,7 +728,9 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            category_results = [doc async for doc in ThreatIntelligence.aggregate(category_pipeline)]
+            category_results = []
+            async for doc in ThreatIntelligence.aggregate(category_pipeline):
+                category_results.append(doc)
             threats_by_category = {}
             for result in category_results:
                 category = result.get("_id")
@@ -739,7 +743,9 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            severity_results = [doc async for doc in ThreatIntelligence.aggregate(severity_pipeline)]
+            severity_results = []
+            async for doc in ThreatIntelligence.aggregate(severity_pipeline):
+                severity_results.append(doc)
             threats_by_severity = {}
             for result in severity_results:
                 severity = result.get("_id")
@@ -752,7 +758,9 @@ async def get_analytics(days: int = 30):
                 {"$group": {"_id": "$source", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}}
             ]
-            source_results = [doc async for doc in ThreatIntelligence.aggregate(source_pipeline)]
+            source_results = []
+            async for doc in ThreatIntelligence.aggregate(source_pipeline):
+                source_results.append(doc)
             threats_by_source = {}
             for result in source_results:
                 source = result.get("_id")
@@ -775,7 +783,9 @@ async def get_analytics(days: int = 30):
                 },
                 {"$sort": {"_id": 1}}
             ]
-            timeline_results = [doc async for doc in ThreatIntelligence.aggregate(timeline_pipeline)]
+            timeline_results = []
+            async for doc in ThreatIntelligence.aggregate(timeline_pipeline):
+                timeline_results.append(doc)
             threats_timeline = [
                 {"date": result["_id"], "count": result["count"]}
                 for result in timeline_results
@@ -807,7 +817,9 @@ async def get_analytics(days: int = 30):
                     {"$sort": {"count": -1}},
                     {"$limit": 10}
                 ]
-                entity_results = [doc async for doc in ExtractedEntity.aggregate(entity_pipeline)]
+                entity_results = []
+                async for doc in ExtractedEntity.aggregate(entity_pipeline):
+                    entity_results.append(doc)
                 top_entities = [
                     {"entity": result["_id"], "count": result["count"]}
                     for result in entity_results
@@ -982,7 +994,9 @@ async def get_entities(limit: int = 50):
                 {"$sort": {"count": -1}},
                 {"$limit": limit}
             ]
-            entity_results = [doc async for doc in ExtractedEntity.aggregate(entity_pipeline)]
+            entity_results = []
+            async for doc in ExtractedEntity.aggregate(entity_pipeline):
+                entity_results.append(doc)
             
             entities = []
             for result in entity_results:
@@ -1010,7 +1024,9 @@ async def get_data_sources():
                 {"$group": {"_id": "$source", "count": {"$sum": 1}, "last_update": {"$max": "$timestamp"}}},
                 {"$sort": {"count": -1}}
             ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list()
+            source_results = []
+            async for doc in ThreatIntelligence.aggregate(source_pipeline):
+                source_results.append(doc)
             
             sources = []
             for result in source_results:
