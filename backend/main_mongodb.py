@@ -47,6 +47,7 @@ from database import (
     ThreatIntelligence,
     ExtractedEntity,
     AnalysisResult,
+    DataIngestionLog,
     DataSource,
     ThreatCategory,
     SeverityLevel,
@@ -925,7 +926,7 @@ async def get_threat_details(threat_id: str):
             entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list(None)
             
             # Get analysis results
-            analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list()
+            analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list(None)
             
             return {
                 "threat": {
@@ -1022,7 +1023,7 @@ async def get_data_sources():
                 })
             
             # Get ingestion logs
-            recent_logs = await DataIngestionLog.find_all().sort([("start_time", -1)]).limit(10).to_list()
+            recent_logs = await DataIngestionLog.find_all().sort([("start_time", -1)]).limit(10).to_list(None)
             
             logs = []
             for log in recent_logs:
