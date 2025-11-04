@@ -309,6 +309,15 @@ async def get_dashboard_stats():
             # Get MongoDB statistics
             total_threats = await ThreatIntelligence.count()
             
+            # Get today's date for filtering
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            tomorrow = today + timedelta(days=1)
+            
+            # Count today's threats
+            todays_threats = await ThreatIntelligence.find(
+                {"timestamp": {"$gte": today, "$lt": tomorrow}}
+            ).count()
+            
             # Aggregate by category
             category_pipeline = [
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}}
@@ -322,6 +331,13 @@ async def get_dashboard_stats():
             ]
             severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list(None)
             threats_by_severity = {result["_id"]: result["count"] for result in severity_results if result["_id"]}
+            
+            # Count critical alerts (Critical + High severity)
+            critical_alerts = 0
+            if "Critical" in threats_by_severity:
+                critical_alerts += threats_by_severity["Critical"]
+            if "High" in threats_by_severity:
+                critical_alerts += threats_by_severity["High"]
             
             # Aggregate by source
             source_pipeline = [
@@ -357,6 +373,8 @@ async def get_dashboard_stats():
             
             return DashboardStats(
                 total_threats=total_threats,
+                critical_alerts=critical_alerts,
+                todays_threats=todays_threats,
                 threats_by_category=threats_by_category,
                 threats_by_severity=threats_by_severity,
                 threats_by_source=threats_by_source,
@@ -374,6 +392,8 @@ async def get_dashboard_stats():
         if not os.path.exists(file_path):
             return DashboardStats(
                 total_threats=0,
+                critical_alerts=0,
+                todays_threats=0,
                 threats_by_category={},
                 threats_by_severity={},
                 threats_by_source={},
@@ -395,9 +415,29 @@ async def get_dashboard_stats():
         threats_by_source = {}
         recent_threats = sorted(threats, key=lambda x: x.get("timestamp", ""), reverse=True)[:10]
         
+        # Calculate today's threats and critical alerts from file data
+        today = datetime.now().date()
+        todays_threats = 0
+        critical_alerts = 0
+        
         for threat in threats:
             source = threat.get("source", "unknown")
             threats_by_source[source] = threats_by_source.get(source, 0) + 1
+            
+            # Check if threat is from today
+            threat_date_str = threat.get("timestamp", "")
+            if threat_date_str:
+                try:
+                    threat_date = datetime.fromisoformat(threat_date_str.replace('Z', '+00:00')).date()
+                    if threat_date == today:
+                        todays_threats += 1
+                except:
+                    pass
+            
+            # Check if threat is critical
+            severity = threat.get("severity_level", "").lower()
+            if severity in ["critical", "high"]:
+                critical_alerts += 1
         
         return DashboardStats(
             total_threats=total_threats,

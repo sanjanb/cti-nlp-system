@@ -186,6 +186,8 @@ class ThreatAnalysisResponse(BaseModel):
 class DashboardStats(BaseModel):
     """Dashboard statistics response"""
     total_threats: int
+    critical_alerts: int  # New field for critical severity threats
+    todays_threats: int   # New field for threats from today
     threats_by_category: Dict[str, int]
     threats_by_severity: Dict[str, int]
     threats_by_source: Dict[str, int]
