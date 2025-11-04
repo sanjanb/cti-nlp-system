@@ -228,29 +228,6 @@ class SimpleThreatAnalyzer:
         """Load improved models with fallback to original models"""
         print("Loading threat analysis models...")
         
-        # Try to load improved models
-        if ImprovedThreatClassifier:
-            try:
-                self.classifier = ImprovedThreatClassifier()
-                if not self.classifier.load_model(self.model_dir):
-                    self.classifier = None
-            except:
-                self.classifier = None
-        
-        if ImprovedSeverityPredictor:
-            try:
-                self.severity_predictor = ImprovedSeverityPredictor()
-                if not self.severity_predictor.load_model(self.model_dir):
-                    self.severity_predictor = None
-            except:
-                self.severity_predictor = None
-        
-        if SimpleEntityExtractor:
-            try:
-                self.entity_extractor = SimpleEntityExtractor()
-            except:
-                self.entity_extractor = None
-        
         # Load fallback models
         self._load_fallback_models()
         
@@ -277,7 +254,6 @@ class SimpleThreatAnalyzer:
                 
         except Exception as e:
             print(f"Warning: Failed to load some fallback models: {e}")
-    
     def classify_threat(self, text: str) -> Dict:
         """Classify threat using best available model"""
         try:
