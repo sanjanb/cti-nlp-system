@@ -441,6 +441,8 @@ async def get_dashboard_stats():
         
         return DashboardStats(
             total_threats=total_threats,
+            critical_alerts=critical_alerts,
+            todays_threats=todays_threats,
             threats_by_category={},
             threats_by_severity={},
             threats_by_source=threats_by_source,

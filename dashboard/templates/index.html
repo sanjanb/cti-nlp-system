@@ -1871,21 +1871,28 @@
       }
 
       function updateDashboardStats(data) {
+        // Update overview cards with dynamic data from MongoDB
         document.getElementById("totalThreats").textContent =
-          data.total_threats || 0;
+          (data.total_threats || 0).toLocaleString();
         document.getElementById("criticalThreats").textContent =
-          (data.threats_by_severity && data.threats_by_severity.Critical) || 0;
+          (data.critical_alerts || 0).toLocaleString();
         document.getElementById("todayThreats").textContent =
-          data.threats_today || 0;
+          (data.todays_threats || 0).toLocaleString();
 
-        // Update source counts
+        // Update source counts for data sources tab
         const sourceStats = data.threats_by_source || {};
-        document.getElementById("twitterCount").textContent =
-          sourceStats.Twitter || 0;
-        document.getElementById("darkwebCount").textContent =
-          sourceStats.DarkWeb || 0;
-        document.getElementById("mitreCount").textContent =
-          sourceStats.MITRE || 0;
+        if (document.getElementById("twitterCount")) {
+          document.getElementById("twitterCount").textContent =
+            (sourceStats.twitter || sourceStats.Twitter || 0).toLocaleString();
+        }
+        if (document.getElementById("darkwebCount")) {
+          document.getElementById("darkwebCount").textContent =
+            (sourceStats.darkweb || sourceStats.DarkWeb || sourceStats.dark_web || 0).toLocaleString();
+        }
+        if (document.getElementById("mitreCount")) {
+          document.getElementById("mitreCount").textContent =
+            (sourceStats.mitre_attack || sourceStats.MITRE || sourceStats.mitre || 0).toLocaleString();
+        }
       }
 
       // Threat Feed Functions
