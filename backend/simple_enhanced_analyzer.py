@@ -6,29 +6,213 @@ import joblib
 import os
 import sys
 import re
+import logging
 from typing import Dict, List, Optional
 
-# Add scripts directory to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+# Configure logging
+logger = logging.getLogger(__name__)
 
-try:
-    from train_improved_models import (
-        ImprovedThreatClassifier, 
-        ImprovedSeverityPredictor, 
-        SimpleEntityExtractor
-    )
-except ImportError:
-    print("Warning: Could not import improved models, using fallback")
-    ImprovedThreatClassifier = None
-    ImprovedSeverityPredictor = None
-    SimpleEntityExtractor = None
+# Global variables for loaded models
+_threat_classifier = None
+_severity_predictor = None
+_entity_extractor = None
+_models_loaded = False
 
+class SimpleThreatAnalyzer:
+    """Simple but enhanced threat analyzer"""
+    
+"""
+Simple Enhanced Backend Integration
+Works with your current system - using improved models from pickle files directly
+"""
+import joblib
+import os
+import logging
+from typing import Dict, List, Optional
+import numpy as np
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Global variables for loaded models
+_threat_models = {}
+_severity_models = {}
+_models_loaded = False
+
+def load_enhanced_models():
+    """Load enhanced models from pickle files"""
+    global _threat_models, _severity_models, _models_loaded
+    
+    if _models_loaded:
+        return True
+    
+    try:
+        model_dir = "models"
+        
+        # Load threat classification models
+        threat_files = [
+            "improved_threat_classifier.pkl",
+            "improved_tfidf_vectorizer.pkl",
+            "enhanced_ensemble_model.pkl",
+            "enhanced_tfidf_vectorizer.pkl"
+        ]
+        
+        for filename in threat_files:
+            filepath = os.path.join(model_dir, filename)
+            if os.path.exists(filepath):
+                try:
+                    _threat_models[filename.replace('.pkl', '')] = joblib.load(filepath)
+                    logger.info(f"Loaded {filename}")
+                except Exception as e:
+                    logger.warning(f"Failed to load {filename}: {e}")
+        
+        # Load severity prediction models
+        severity_files = [
+            "improved_severity_model.pkl",
+            "improved_severity_tfidf.pkl",
+            "improved_severity_features.pkl"
+        ]
+        
+        for filename in severity_files:
+            filepath = os.path.join(model_dir, filename)
+            if os.path.exists(filepath):
+                try:
+                    _severity_models[filename.replace('.pkl', '')] = joblib.load(filepath)
+                    logger.info(f"Loaded {filename}")
+                except Exception as e:
+                    logger.warning(f"Failed to load {filename}: {e}")
+        
+        _models_loaded = True
+        logger.info("Enhanced models loaded successfully")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to load enhanced models: {e}")
+        return False
+
+def analyze_threat_comprehensive(text: str) -> Dict:
+    """Comprehensive threat analysis using enhanced models"""
+    if not _models_loaded:
+        load_enhanced_models()
+    
+    results = {
+        "threat_classification": analyze_threat_enhanced(text),
+        "severity_prediction": predict_severity_enhanced(text),
+        "confidence_score": 0.0
+    }
+    
+    # Calculate overall confidence
+    threat_conf = results["threat_classification"].get("confidence", 0.0)
+    severity_conf = results["severity_prediction"].get("confidence", 0.0)
+    results["confidence_score"] = (threat_conf + severity_conf) / 2
+    
+    return results
+
+def analyze_threat_enhanced(text: str) -> Dict:
+    """Enhanced threat classification"""
+    try:
+        if "improved_threat_classifier" in _threat_models and "improved_tfidf_vectorizer" in _threat_models:
+            vectorizer = _threat_models["improved_tfidf_vectorizer"]
+            classifier = _threat_models["improved_threat_classifier"]
+            
+            X = vectorizer.transform([text])
+            prediction = classifier.predict(X)[0]
+            probabilities = classifier.predict_proba(X)[0]
+            confidence = max(probabilities)
+            
+            return {
+                "category": prediction,
+                "confidence": float(confidence),
+                "model_type": "enhanced"
+            }
+        
+        # Fallback to ensemble model
+        elif "enhanced_ensemble_model" in _threat_models and "enhanced_tfidf_vectorizer" in _threat_models:
+            vectorizer = _threat_models["enhanced_tfidf_vectorizer"]
+            classifier = _threat_models["enhanced_ensemble_model"]
+            
+            X = vectorizer.transform([text])
+            prediction = classifier.predict(X)[0]
+            probabilities = classifier.predict_proba(X)[0]
+            confidence = max(probabilities)
+            
+            return {
+                "category": prediction,
+                "confidence": float(confidence),
+                "model_type": "ensemble"
+            }
+        
+        else:
+            return {
+                "category": "Other",
+                "confidence": 0.0,
+                "model_type": "fallback",
+                "error": "Enhanced models not available"
+            }
+            
+    except Exception as e:
+        logger.error(f"Enhanced threat analysis failed: {e}")
+        return {
+            "category": "Other",
+            "confidence": 0.0,
+            "model_type": "fallback",
+            "error": str(e)
+        }
+
+def predict_severity_enhanced(text: str) -> Dict:
+    """Enhanced severity prediction"""
+    try:
+        if "improved_severity_model" in _severity_models and "improved_severity_tfidf" in _severity_models:
+            vectorizer = _severity_models["improved_severity_tfidf"]
+            classifier = _severity_models["improved_severity_model"]
+            
+            X = vectorizer.transform([text])
+            prediction = classifier.predict(X)[0]
+            probabilities = classifier.predict_proba(X)[0]
+            confidence = max(probabilities)
+            
+            return {
+                "severity": prediction,
+                "confidence": float(confidence),
+                "model_type": "enhanced"
+            }
+        else:
+            return {
+                "severity": "Medium",
+                "confidence": 0.0,
+                "model_type": "fallback",
+                "error": "Enhanced severity models not available"
+            }
+            
+    except Exception as e:
+        logger.error(f"Enhanced severity prediction failed: {e}")
+        return {
+            "severity": "Medium",
+            "confidence": 0.0,
+            "model_type": "fallback",
+            "error": str(e)
+        }
+
+def get_model_info() -> Dict:
+    """Get information about loaded models"""
+    return {
+        "models_loaded": _models_loaded,
+        "threat_models": list(_threat_models.keys()),
+        "severity_models": list(_severity_models.keys()),
+        "total_models": len(_threat_models) + len(_severity_models)
+    }
+
+def initialize_analyzer():
+    """Initialize the analyzer by loading models"""
+    return load_enhanced_models()
+
+# Simplified class for backward compatibility
 class SimpleThreatAnalyzer:
     """Simple but enhanced threat analyzer"""
     
     def __init__(self, model_dir="models"):
         self.model_dir = model_dir
-        self.classifier = None
+        self.models_loaded = load_enhanced_models()
         self.severity_predictor = None
         self.entity_extractor = None
         

@@ -826,8 +826,7 @@ async def get_analytics(days: int = 30):
             
             # Get recent threats
             recent_threats = await ThreatIntelligence.find(
-                ThreatIntelligence.timestamp >= start_date,
-                ThreatIntelligence.timestamp <= end_date
+                {"timestamp": {"$gte": start_date, "$lte": end_date}}
             ).sort([("timestamp", -1)]).limit(10).to_list(None)
             
             recent_threats_data = []
