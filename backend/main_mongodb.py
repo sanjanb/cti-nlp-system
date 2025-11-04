@@ -23,6 +23,8 @@ from backend.classifier import classify_threat
 from backend.severity_predictor import predict_severity
 
 # Enhanced analyzer import
+logger = logging.getLogger(__name__)
+
 try:
     from backend.simple_enhanced_analyzer import (
         analyze_threat_comprehensive, 
@@ -31,9 +33,14 @@ try:
     )
     ENHANCED_ANALYZER_AVAILABLE = True
     # Initialize the enhanced analyzer
-    initialize_analyzer()
+    enhanced_status = initialize_analyzer()
+    logger.info(f"Enhanced analyzer initialized: {enhanced_status}")
+    
+    # Get model info
+    model_info = get_model_info()
+    logger.info(f"Model info: {model_info}")
+    
 except ImportError as e:
-    logger = logging.getLogger(__name__)
     logger.warning(f"Enhanced analyzer not available: {e}")
     ENHANCED_ANALYZER_AVAILABLE = False
 
@@ -608,6 +615,39 @@ async def analyze_threat_text(request: ThreatAnalysisRequest):
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
+
+@app.post("/api/analyze/enhanced")
+async def analyze_threat_enhanced(request: ThreatAnalysisRequest):
+    """Enhanced threat analysis using improved models"""
+    try:
+        if not ENHANCED_ANALYZER_AVAILABLE:
+            raise HTTPException(
+                status_code=503, 
+                detail="Enhanced analyzer not available. Using basic models only."
+            )
+        
+        text = request.text
+        start_time = datetime.utcnow()
+        
+        # Use enhanced comprehensive analysis
+        analysis_result = analyze_threat_comprehensive(text)
+        
+        end_time = datetime.utcnow()
+        processing_time_ms = (end_time - start_time).total_seconds() * 1000
+        
+        # Add metadata
+        analysis_result.update({
+            "processing_time_ms": processing_time_ms,
+            "timestamp": start_time.isoformat(),
+            "enhanced_analysis": True,
+            "model_info": get_model_info()
+        })
+        
+        return analysis_result
+        
+    except Exception as e:
+        logger.error(f"Enhanced analysis failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Enhanced analysis failed: {str(e)}")
 
 @app.post("/api/bulk_analyze")
 async def bulk_analyze_threats(file: UploadFile = File(...)):
