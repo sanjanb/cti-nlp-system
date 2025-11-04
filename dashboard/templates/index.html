@@ -1793,41 +1793,48 @@
             };
           }
 
-          // Try analytics if database is connected or in test mode
-          let analyticsData = {};
+          // Try dashboard stats if database is connected or in test mode
+          let dashboardData = {};
           if (databaseConnected || isTestMode) {
             try {
-              analyticsData = await apiCall("/analytics?days=30");
+              dashboardData = await apiCall("/api/stats");
             } catch (error) {
-              // Use mock data for analytics if database is not available
-              analyticsData = {
+              console.error("Failed to load dashboard stats:", error);
+              // Use mock data for dashboard if database is not available
+              dashboardData = {
                 total_threats: 0,
-                threats_today: 0,
+                critical_alerts: 0,
+                todays_threats: 0,
                 threats_by_severity: {
                   Critical: 0,
                   High: 0,
                   Medium: 0,
                   Low: 0,
                 },
-                threats_by_source: { Twitter: 0, DarkWeb: 0, MITRE: 0 },
+                threats_by_source: { twitter: 0, darkweb: 0, mitre_attack: 0 },
                 threats_by_category: {},
-                threats_timeline: [],
+                recent_threats: [],
+                top_entities: [],
+                processing_stats: { database_mode: "error" }
               };
             }
           } else {
             // Use mock data when database is not available
-            analyticsData = {
+            dashboardData = {
               total_threats: 0,
-              threats_today: 0,
+              critical_alerts: 0,
+              todays_threats: 0,
               threats_by_severity: { Critical: 0, High: 0, Medium: 0, Low: 0 },
-              threats_by_source: { Twitter: 0, DarkWeb: 0, MITRE: 0 },
+              threats_by_source: { twitter: 0, darkweb: 0, mitre_attack: 0 },
               threats_by_category: {},
-              threats_timeline: [],
+              recent_threats: [],
+              top_entities: [],
+              processing_stats: { database_mode: "disconnected" }
             };
           }
 
           updateSystemHealth(healthData);
-          updateDashboardStats(analyticsData);
+          updateDashboardStats(dashboardData);
         } catch (error) {
           updateSystemHealth({ status: "error", error: error.message });
         }
