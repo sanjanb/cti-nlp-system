@@ -197,7 +197,7 @@ async def get_feed(limit: int = 20):
     if USE_MONGODB:
         try:
             # Get from MongoDB
-            threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(limit).to_list(None)
+            threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(limit).to_list()
             return [
                 {
                     "id": str(threat.id),
@@ -329,14 +329,30 @@ async def get_dashboard_stats():
             category_pipeline = [
                 {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}}
             ]
-            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list(None)
+            
+            category_results = []
+            try:
+                async for result in ThreatIntelligence.aggregate(category_pipeline):
+                    category_results.append(result)
+            except Exception as e:
+                logger.error(f"Category aggregation failed: {e}")
+                category_results = []
+            
             threats_by_category = {result["_id"]: result["count"] for result in category_results if result["_id"]}
             
             # Aggregate by severity
             severity_pipeline = [
                 {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}}
             ]
-            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list(None)
+            
+            severity_results = []
+            try:
+                async for result in ThreatIntelligence.aggregate(severity_pipeline):
+                    severity_results.append(result)
+            except Exception as e:
+                logger.error(f"Severity aggregation failed: {e}")
+                severity_results = []
+            
             threats_by_severity = {result["_id"]: result["count"] for result in severity_results if result["_id"]}
             
             # Count critical alerts (Critical + High severity)
@@ -350,11 +366,19 @@ async def get_dashboard_stats():
             source_pipeline = [
                 {"$group": {"_id": "$source", "count": {"$sum": 1}}}
             ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
+            
+            source_results = []
+            try:
+                async for result in ThreatIntelligence.aggregate(source_pipeline):
+                    source_results.append(result)
+            except Exception as e:
+                logger.error(f"Source aggregation failed: {e}")
+                source_results = []
+            
             threats_by_source = {result["_id"]: result["count"] for result in source_results if result["_id"]}
             
             # Get recent threats
-            recent_threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(10).to_list(None)
+            recent_threats = await ThreatIntelligence.find_all().sort([("timestamp", -1)]).limit(10).to_list()
             recent_threats_data = [
                 ThreatIntelResponse(
                     id=str(threat.id),
@@ -375,7 +399,15 @@ async def get_dashboard_stats():
                 {"$sort": {"count": -1}},
                 {"$limit": 10}
             ]
-            entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
+            
+            entity_results = []
+            try:
+                async for result in ExtractedEntity.aggregate(entity_pipeline):
+                    entity_results.append(result)
+            except Exception as e:
+                logger.error(f"Entity aggregation failed: {e}")
+                entity_results = []
+            
             top_entities = [{"entity": result["_id"], "count": result["count"]} for result in entity_results]
             
             return DashboardStats(
@@ -804,12 +836,19 @@ async def get_analytics(days: int = 30):
             ).count()
             
             # Get threats by category
-            category_pipeline = [
-                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
-                {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}}
-            ]
-            category_results = await ThreatIntelligence.aggregate(category_pipeline).to_list(None)
+            category_results = []
+            try:
+                category_pipeline = [
+                    {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                    {"$group": {"_id": "$threat_category", "count": {"$sum": 1}}},
+                    {"$sort": {"count": -1}}
+                ]
+                async for result in ThreatIntelligence.aggregate(category_pipeline):
+                    category_results.append(result)
+            except Exception as e:
+                logger.error(f"Category aggregation failed: {e}")
+                category_results = []
+            
             threats_by_category = {}
             for result in category_results:
                 category = result.get("_id")
@@ -817,12 +856,19 @@ async def get_analytics(days: int = 30):
                     threats_by_category[str(category)] = result.get("count", 0)
             
             # Get threats by severity
-            severity_pipeline = [
-                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
-                {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}}
-            ]
-            severity_results = await ThreatIntelligence.aggregate(severity_pipeline).to_list(None)
+            severity_results = []
+            try:
+                severity_pipeline = [
+                    {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                    {"$group": {"_id": "$severity_level", "count": {"$sum": 1}}},
+                    {"$sort": {"count": -1}}
+                ]
+                async for result in ThreatIntelligence.aggregate(severity_pipeline):
+                    severity_results.append(result)
+            except Exception as e:
+                logger.error(f"Severity aggregation failed: {e}")
+                severity_results = []
+            
             threats_by_severity = {}
             for result in severity_results:
                 severity = result.get("_id")
@@ -830,12 +876,19 @@ async def get_analytics(days: int = 30):
                     threats_by_severity[str(severity)] = result.get("count", 0)
             
             # Get threats by source
-            source_pipeline = [
-                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
-                {"$group": {"_id": "$source", "count": {"$sum": 1}}},
-                {"$sort": {"count": -1}}
-            ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
+            source_results = []
+            try:
+                source_pipeline = [
+                    {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                    {"$group": {"_id": "$source", "count": {"$sum": 1}}},
+                    {"$sort": {"count": -1}}
+                ]
+                async for result in ThreatIntelligence.aggregate(source_pipeline):
+                    source_results.append(result)
+            except Exception as e:
+                logger.error(f"Source aggregation failed: {e}")
+                source_results = []
+            
             threats_by_source = {}
             for result in source_results:
                 source = result.get("_id")
@@ -843,22 +896,29 @@ async def get_analytics(days: int = 30):
                     threats_by_source[str(source)] = result.get("count", 0)
             
             # Get timeline data (threats per day)
-            timeline_pipeline = [
-                {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
-                {
-                    "$group": {
-                        "_id": {
-                            "$dateToString": {
-                                "format": "%Y-%m-%d",
-                                "date": "$timestamp"
-                            }
-                        },
-                        "count": {"$sum": 1}
-                    }
-                },
-                {"$sort": {"_id": 1}}
-            ]
-            timeline_results = await ThreatIntelligence.aggregate(timeline_pipeline).to_list(None)
+            timeline_results = []
+            try:
+                timeline_pipeline = [
+                    {"$match": {"timestamp": {"$gte": start_date, "$lte": end_date}}},
+                    {
+                        "$group": {
+                            "_id": {
+                                "$dateToString": {
+                                    "format": "%Y-%m-%d",
+                                    "date": "$timestamp"
+                                }
+                            },
+                            "count": {"$sum": 1}
+                        }
+                    },
+                    {"$sort": {"_id": 1}}
+                ]
+                async for result in ThreatIntelligence.aggregate(timeline_pipeline):
+                    timeline_results.append(result)
+            except Exception as e:
+                logger.error(f"Timeline aggregation failed: {e}")
+                timeline_results = []
+            
             threats_timeline = [
                 {"date": result["_id"], "count": result["count"]}
                 for result in timeline_results
@@ -867,7 +927,7 @@ async def get_analytics(days: int = 30):
             # Get recent threats
             recent_threats = await ThreatIntelligence.find(
                 {"timestamp": {"$gte": start_date, "$lte": end_date}}
-            ).sort([("timestamp", -1)]).limit(10).to_list(None)
+            ).sort([("timestamp", -1)]).limit(10).to_list()
             
             recent_threats_data = []
             for threat in recent_threats:
@@ -889,7 +949,10 @@ async def get_analytics(days: int = 30):
                     {"$sort": {"count": -1}},
                     {"$limit": 10}
                 ]
-                entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
+                entity_results = []
+                async for result in ExtractedEntity.aggregate(entity_pipeline):
+                    entity_results.append(result)
+                
                 top_entities = [
                     {"entity": result["_id"], "count": result["count"]}
                     for result in entity_results
@@ -955,7 +1018,7 @@ async def get_threats(page: int = 1, limit: int = 20, category: str = None, seve
                 filter_query["source"] = source
             
             # Get threats with filters
-            threats = await ThreatIntelligence.find(filter_query).skip(skip).limit(limit).sort([("timestamp", -1)]).to_list(None)
+            threats = await ThreatIntelligence.find(filter_query).skip(skip).limit(limit).sort([("timestamp", -1)]).to_list()
             total_count = await ThreatIntelligence.find(filter_query).count()
             
             threats_data = []
@@ -1004,10 +1067,10 @@ async def get_threat_details(threat_id: str):
                 raise HTTPException(status_code=404, detail="Threat not found")
             
             # Get associated entities
-            entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list(None)
+            entities = await ExtractedEntity.find(ExtractedEntity.threat_id == threat_id).to_list()
             
             # Get analysis results
-            analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list(None)
+            analysis_results = await AnalysisResult.find(AnalysisResult.threat_id == threat_id).to_list()
             
             return {
                 "threat": {
@@ -1064,7 +1127,14 @@ async def get_entities(limit: int = 50):
                 {"$sort": {"count": -1}},
                 {"$limit": limit}
             ]
-            entity_results = await ExtractedEntity.aggregate(entity_pipeline).to_list(None)
+            
+            entity_results = []
+            try:
+                async for result in ExtractedEntity.aggregate(entity_pipeline):
+                    entity_results.append(result)
+            except Exception as e:
+                logger.error(f"Entity aggregation failed: {e}")
+                entity_results = []
             
             entities = []
             for result in entity_results:
@@ -1088,11 +1158,17 @@ async def get_data_sources():
     try:
         if USE_MONGODB:
             # Get source statistics
-            source_pipeline = [
-                {"$group": {"_id": "$source", "count": {"$sum": 1}, "last_update": {"$max": "$timestamp"}}},
-                {"$sort": {"count": -1}}
-            ]
-            source_results = await ThreatIntelligence.aggregate(source_pipeline).to_list(None)
+            source_results = []
+            try:
+                source_pipeline = [
+                    {"$group": {"_id": "$source", "count": {"$sum": 1}, "last_update": {"$max": "$timestamp"}}},
+                    {"$sort": {"count": -1}}
+                ]
+                async for result in ThreatIntelligence.aggregate(source_pipeline):
+                    source_results.append(result)
+            except Exception as e:
+                logger.error(f"Source aggregation failed: {e}")
+                source_results = []
             
             sources = []
             for result in source_results:
@@ -1104,7 +1180,7 @@ async def get_data_sources():
                 })
             
             # Get ingestion logs
-            recent_logs = await DataIngestionLog.find_all().sort([("start_time", -1)]).limit(10).to_list(None)
+            recent_logs = await DataIngestionLog.find_all().sort([("start_time", -1)]).limit(10).to_list()
             
             logs = []
             for log in recent_logs:
@@ -1118,7 +1194,7 @@ async def get_data_sources():
                     "start_time": log.start_time.isoformat(),
                     "end_time": log.end_time.isoformat() if log.end_time else None,
                     "duration_seconds": log.duration_seconds,
-                    "errors": log.errors[:5]  # Limit errors shown
+                    "errors": log.errors[:5] if log.errors else []  # Limit errors shown
                 })
             
             return {
