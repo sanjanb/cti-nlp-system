@@ -712,21 +712,6 @@
                       <div class="col-md-6">
                         <div class="mb-3">
                           <label class="form-label fw-bold"
-                            >Confidence Score</label
-                          >
-                          <div class="progress" style="height: 20px">
-                            <div
-                              id="confidenceBar"
-                              class="progress-bar"
-                              role="progressbar"
-                              style="width: 0%"
-                            >
-                              0%
-                            </div>
-                          </div>
-                        </div>
-                        <div class="mb-3">
-                          <label class="form-label fw-bold"
                             >Processing Time</label
                           >
                           <div id="processingTime" class="text-muted">- ms</div>
@@ -2058,21 +2043,6 @@
         severityElement.className = `severity-badge severity-${(
           result.severity_level || "low"
         ).toLowerCase()}`;
-
-        // Confidence score
-        const confidence = Math.round(
-          (result.confidence_score || 0.8) * 100
-        );
-        const confidenceBar = document.getElementById("confidenceBar");
-        confidenceBar.style.width = `${confidence}%`;
-        confidenceBar.textContent = `${confidence}%`;
-        confidenceBar.className = `progress-bar ${
-          confidence >= 80
-            ? "bg-success"
-            : confidence >= 60
-            ? "bg-warning"
-            : "bg-danger"
-        }`;
 
         document.getElementById(
           "processingTime"
