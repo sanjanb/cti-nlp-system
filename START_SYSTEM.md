@@ -176,3 +176,5 @@ python -m spacy download en_core_web_sm
 ---
 
 **Recommendation**: Start with **Test Mode** for immediate use, then set up the full database when you need persistence.
+
+& "D:/ATME/Major Project/cti-nlp-system/myenv/Scripts/uvicorn.exe" backend.main_mongodb:app --host 0.0.0.0 --port 8001
